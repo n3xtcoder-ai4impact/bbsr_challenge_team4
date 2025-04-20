@@ -1,9 +1,16 @@
-#TODO: Webservice entry point: https://fastapi.tiangolo.com/tutorial/bigger-applications/
 import json
 from fastapi import Depends, APIRouter, Request, Form
 from app.configuration.getConfig import Config
 from fastapi.templating import Jinja2Templates
 templates = Jinja2Templates(directory="app/templates/")
+
+from app.data import data_loader
+
+# Load data
+t_baustoff = data_loader.df_tbaustoff
+OBD_2020 = data_loader.df_OBD_2020
+OBD_2023 = data_loader.df_OBD_2023
+OBD_2024 = data_loader.df_OBD_2024
 
 
 # get the config file
@@ -30,8 +37,16 @@ def form_post(request: Request):
 
 @router.post("/input")
 def form_post(request: Request, uuid_input: str = Form(...)):
-    result = uuid_input
+    #TODO: expand search to all OBD files
+    #TODO: put it all in an external function
+    if uuid_input in OBD_2024['UUID'].unique():
+        result = 'Yay! UUID has been found.'
+    else:
+        result = 'Sorry, UUID not found.'
+
+    # todo: sanitize user input - maybe use nh3?
     return templates.TemplateResponse('input.html', context={'request': request, 'result': result})
+
 
 
 
