@@ -1,4 +1,4 @@
-#@TODO: Webservice entry point: https://fastapi.tiangolo.com/tutorial/bigger-applications/
+#TODO: Webservice entry point: https://fastapi.tiangolo.com/tutorial/bigger-applications/
 import json
 from fastapi import Depends, APIRouter, Request, Form
 from app.configuration.getConfig import Config
@@ -24,13 +24,13 @@ def read_form():
 
 @router.get("/input")
 def form_post(request: Request):
-    result = "Enter a number"
+    result = "(none)"
     return templates.TemplateResponse('input.html', context={'request': request, 'result': result})
 
 
 @router.post("/input")
-def form_post(request: Request, num: int = Form(...)):
-    result = num * 10
+def form_post(request: Request, uuid_input: str = Form(...)):
+    result = uuid_input
     return templates.TemplateResponse('input.html', context={'request': request, 'result': result})
 
 

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "bbsr-challenge-team4"
+name = "bbsr_challenge_team4"
 version = "0.1.0"
 description = "A simple webapp for the bbsr challenge"
 authors = ["Gustav Geissler <gustav.geissler@gmail.com>"]

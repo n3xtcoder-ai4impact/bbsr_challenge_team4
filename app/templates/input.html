@@ -6,9 +6,11 @@
 </head>
 <body>
 <form method="post">
-    <input type="number" name="num" value="{{ num }}"/>
-    <input type="submit">
+    <label>UUID:</label>
+    <br>
+    <input type="text" name="uuid_input" value="{{ uuid_input }}"/>
+    <input type="submit" value="Submit">
 </form>
-<p>UUID: {{ result }}</p>
+<p>Entered UUID: {{ result }}</p>
 </body>
 </html>
