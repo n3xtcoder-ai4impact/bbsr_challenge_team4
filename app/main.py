@@ -1,8 +1,8 @@
-
 from fastapi import FastAPI
 from app.configuration.getConfig import Config
 # routers
 from app.routers import config, benchmark
+from loguru import logger
 
 # get the config file
 configuration = Config()
