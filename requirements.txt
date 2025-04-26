@@ -4,3 +4,4 @@ fastapi==0.115.12
 uvicorn==0.34.2
 pandas==2.2.2
 numpy==1.26.4
+sentence_transformers==4.1.0
