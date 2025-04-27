@@ -3,7 +3,7 @@ from app.configuration.getConfig import Config
 from fastapi.templating import Jinja2Templates
 templates = Jinja2Templates(directory="app/templates/")
 
-from app.functionalities.uuid import uuid_input_handler
+from app.functionalities.uuid_handler import uuid_input_handler
 
 
 # get the config file

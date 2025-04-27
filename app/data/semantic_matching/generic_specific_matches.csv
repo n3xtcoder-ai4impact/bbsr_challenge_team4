@@ -1,0 +1,4 @@
+uuid_specific,uuid_generic,name_specific,name_generic,match_score
+abc-123,def-234,stuff,other stuff,0.92
+abc-123,fgh-345,stuff,more stuff,0.75
+abc-123,ijk-456,stuff,different stuff,0.49
