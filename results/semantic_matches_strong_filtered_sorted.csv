@@ -1,0 +1,88 @@
+Specific Material Name,Matched Generic Material Name,Generic Material UUID,Similarity Score
+PP-/PE Folie,PE/PP fleece,95a4f4b3-b354-4e2c-9046-0a36175cd768,0.8971
+Mineralwolle (Boden-Dämmung),Mineral wool (blowable),601af947-1f14-474d-8233-780715a12268,0.8712
+Mineralwolle (Schrägdach-Dämmung),Mineral wool (blowable),601af947-1f14-474d-8233-780715a12268,0.8615
+Mineralwolle (Fassaden-Dämmung),Mineral wool (facade insulation),f8afef87-5de3-4996-838c-1f2af9ef81df,0.8353
+Lehmschüttung granuliert,Lava granulate,f8d6bd85-55e0-42d3-982b-b814387b7f58,0.8334
+Mineralwolle (Flachdach-Dämmung),Mineral wool (blowable),601af947-1f14-474d-8233-780715a12268,0.8045
+Leichtputz mineralisch (mineral. Untergrund),Mineral wool (blowable),601af947-1f14-474d-8233-780715a12268,0.7962
+Brettsperrholz,Plywood board,cc180aec-8a5c-4e07-b1a0-1ab81dd746ac,0.7812
+PVC-Dachbahnen,PVC Plastisol,0e39587e-8c05-4a8e-80b5-bb9a57bbe164,0.7784
+Schüttung aus Polystyrolschaumstoff-Partikeln (ohne Bindemittel),Polystyrene foam filling (without binder),e6b12fcd-c1fb-40d9-a9ec-d0149c3d1cd8,0.7756
+Mineralwolle (Innenausbau-Dämmung),Mineral wool (floor insulation),2691d6e4-a41e-40d7-92ca-680f8785fc1d,0.7692
+Lehmfarbe,Lime colour,7baed44c-c80b-4340-b3af-f01d71fbbb43,0.7628
+Hartholzfaser-Platten,Plywood board,cc180aec-8a5c-4e07-b1a0-1ab81dd746ac,0.7557
+Lehmputz,❌ No Good Match Found,,0.7476
+Silikonharzputz,❌ No Good Match Found,,0.7412
+PE Weichschaum,❌ No Good Match Found,,0.7273
+Silikatputz,❌ No Good Match Found,,0.7267
+PE-Drainageplatten,❌ No Good Match Found,,0.7115
+Schilfrohrdämmmatte,❌ No Good Match Found,,0.7055
+Schaumglasgranulat Schüttung,❌ No Good Match Found,,0.7019
+Glaskeramik-Tafeln (Fassade),❌ No Good Match Found,,0.7008
+Blähperlit-Platten,❌ No Good Match Found,,0.6987
+Asphalttragschicht - Hochbau,❌ No Good Match Found,,0.6935
+PIB-Dachbahnen (Polyisobutylen),❌ No Good Match Found,,0.6913
+Blähglasgranulatplatte,❌ No Good Match Found,,0.6888
+Splittschüttung mineral. geb.,❌ No Good Match Found,,0.6778
+Splittschüttung mineral. geb.,❌ No Good Match Found,,0.6778
+Splittschüttung mineral. geb.,❌ No Good Match Found,,0.6778
+Polymer-Bitumenabdichtungsbahn,❌ No Good Match Found,,0.6716
+Silikat-Dispersionsputz (mineral. Untergrund),❌ No Good Match Found,,0.6537
+Schilfrohrmatte (Putzträger),❌ No Good Match Found,,0.6521
+Lehmbauplatte,❌ No Good Match Found,,0.6503
+Gipsputz (innen),❌ No Good Match Found,,0.6301
+"Holzrahmen PH mit Aludeckschale [kg/m² Rahmen] t=0,155 ",❌ No Good Match Found,,0.624
+"Balkenschichtholz Nadelholz - unbeschichtet, naturbelassen",❌ No Good Match Found,,0.6106
+Stampflehmwand,❌ No Good Match Found,,0.607
+Hanfdämmplatte (druckbelastet),❌ No Good Match Found,,0.6023
+Lehm-Klebe- und Haftmörtel,❌ No Good Match Found,,0.596
+"Holzrahmen PH mit Aludeckschale [kg/m² Rahmen] t=0,155 ohne HSM",❌ No Good Match Found,,0.5937
+Wood-Plastic-Composites,❌ No Good Match Found,,0.5918
+Konstruktionsvollholz - naturbelassen,❌ No Good Match Found,,0.5913
+Lehmstein,❌ No Good Match Found,,0.5889
+Schafwolle (ohne Zusatzstoffe),❌ No Good Match Found,,0.5857
+HDF-Platte,❌ No Good Match Found,,0.5827
+"Holzrahmen Fichte mit Aludeckschale [kg/m² Rahmen] t=0,088 ",❌ No Good Match Found,,0.5826
+"Holzrahmen Lärche mit Aludeckschale [kg/m² Rahmen] t=0,088 ",❌ No Good Match Found,,0.5787
+Leichtlehmputz,❌ No Good Match Found,,0.5648
+OSB Platte,❌ No Good Match Found,,0.5645
+Hanfdämmplatte (nicht druckbelastet),❌ No Good Match Found,,0.5625
+MDF-Platte,❌ No Good Match Found,,0.562
+"Innentür Massivholz, unbehandelt oder geölt, Fl.gew. 12 kg/m²",❌ No Good Match Found,,0.5583
+"Holzrahmen Fichte mit Aludeckschale [kg/m² Rahmen] t=0,088 ohne HSM",❌ No Good Match Found,,0.5575
+Bitumenbahnen mit Alu oder Kupfer,❌ No Good Match Found,,0.556
+"Innentür Metallzarge lackiert, Gewicht/Stk, d (IW)=20cm, Türlichte 0,9 x 2,0",❌ No Good Match Found,,0.5541
+"Holzrahmen Lärche mit Aludeckschale [kg/m² Rahmen] t=0,088 ohne HSM",❌ No Good Match Found,,0.5528
+Beton - Carbonfasern / Textilbeton ,❌ No Good Match Found,,0.5516
+Leichtlehm (Stroh-Lehm-Gemisch),❌ No Good Match Found,,0.5492
+Holzdielenboden - unproblem. Beschichtet,❌ No Good Match Found,,0.5469
+EPS-Hartschaumdämmung - Sz. Creasolv,❌ No Good Match Found,,0.5358
+"Innentür Metallzarge lackiert, Gewicht/Stk, d (IW)=10cm, Türlichte 0,9 x 2,0",❌ No Good Match Found,,0.5354
+"Splitt 2/8, dauerelastisch gebunden (Latex, sonstige Polymere)",❌ No Good Match Found,,0.5303
+DFF: Kunststoffrahmen PVC  [kg/m² Rahmen],❌ No Good Match Found,,0.5231
+DFF: Alu-Holz-Komposit-Rahmen [kg/m² Rahmen],❌ No Good Match Found,,0.522
+Kunststoffrahmen PVC mit Aludeckschale [kg/m² Rahmen],❌ No Good Match Found,,0.517
+"Innentür Metallzarge lackiert, Gewicht/lfm, d (IW)=20cm",❌ No Good Match Found,,0.5156
+"Hochlochziegel (hochporosiert), ohne Mörtel / Kleb.",❌ No Good Match Found,,0.5083
+Kalk-Gips-Innenputz auf Massivbaustoff,❌ No Good Match Found,,0.5049
+DFF: Alu-Holz-Komposit-Rahmen [kg/m² Rahmen] ohne HSM,❌ No Good Match Found,,0.5012
+"Innentür Massivholz, lackiert, Fl.gewicht 12 kg/m²",❌ No Good Match Found,,0.5009
+Schafwolle (mit Flammschutzmittel),❌ No Good Match Found,,0.4997
+Elastomer-Dachbahnen,❌ No Good Match Found,,0.4995
+EPS-Hartschaumdämmung - Sz. Verbrennung,❌ No Good Match Found,,0.4877
+"Innentür (Vollspanplatte), Fl.gew.23 kg/m², laminiert oder lackiert",❌ No Good Match Found,,0.4842
+"DFF: Holzrahmen Lärche, beschichtet [kg/m² Rahmen]",❌ No Good Match Found,,0.4777
+"DFF: Holzrahmen Fichte, beschichtet [kg/m² Rahmen]",❌ No Good Match Found,,0.4746
+"Innentür (Pappe mit Wabenstruktur), Fl.gew.8 kg/m², laminiert oder lackiert ",❌ No Good Match Found,,0.4665
+"Lichtkuppel Aufsatzkranz, PP Schürze 30cm [kg/lfm]",❌ No Good Match Found,,0.466
+"Innentür Metallzarge lackiert, Gewicht/lfm, d (IW)=10cm",❌ No Good Match Found,,0.4593
+"Innentür (Röhrenspanstreifen), Fl.gew.12 kg/m², laminiert oder lackiert ",❌ No Good Match Found,,0.4572
+"Innentür (Vollspanplatte), Fl.gew.34 kg/m², laminiert oder lackiert",❌ No Good Match Found,,0.4534
+Gips-Kalk-Putz auf Massivbaustoff,❌ No Good Match Found,,0.4497
+Magnesiaestrich / Steinholzestrich,❌ No Good Match Found,,0.4468
+"Hochlochziegel mineralisch gefüllt, ohne Mörtel / Kleb.",❌ No Good Match Found,,0.4395
+Lehmschüttung granuliert mit CL-Nachweis ,❌ No Good Match Found,,0.438
+"Innentür (Röhrenspanplatte), Fl.gew.15 kg/m², laminiert oder lackiert ",❌ No Good Match Found,,0.4351
+DFF: Alu-Kunststoff-Komposit [kg/m² Rahmen],❌ No Good Match Found,,0.4302
+Lehmputz mit CL-Nachweis,❌ No Good Match Found,,0.3625
