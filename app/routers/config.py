@@ -36,8 +36,6 @@ def form_post(request: Request):
 
 @router.post("/input")
 def form_post(request: Request, uuid_input: str = Form(None)):
-    # todo: catch errors: 500 - internal server error - direct to start page (in RouterModels?)
-
     if uuid_input is None:
         return templates.TemplateResponse('input.html',
                                           context={'request': request,
