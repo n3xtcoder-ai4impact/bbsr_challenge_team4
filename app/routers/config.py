@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Request, Form
+from pydantic import ValidationError
+
 from app.configuration.getConfig import Config
 from fastapi.templating import Jinja2Templates
 templates = Jinja2Templates(directory="app/templates/")
 
 from app.functionalities.uuid_handler import uuid_input_handler
+from app.model.RouterModels import UuidsOut
 
 
 # get the config file
@@ -16,7 +19,10 @@ API_VERSION = configuration.API_VERSION
 # fastAPI Instance
 router = APIRouter()
 # Logger
-logger = configuration.logger
+#logger = configuration.logger
+
+from loguru import logger
+
 
 @router.get('/')
 def read_form():
@@ -29,12 +35,34 @@ def form_post(request: Request):
 
 
 @router.post("/input")
-def form_post(request: Request, uuid_input: str = Form(...)):
-    # todo: sanitize user input - maybe use nh3?
+def form_post(request: Request, uuid_input: str = Form(None)):
+    # todo: catch errors: 500 - internal server error - direct to start page (in RouterModels?)
+
+    if uuid_input is None:
+        return templates.TemplateResponse('input.html',
+                                          context={'request': request,
+                                                   'result': 'Please enter a valid UUID'})
+    if not uuid_input.replace('-', '').isalnum():
+        return templates.TemplateResponse('input.html',
+                                          context={'request': request,
+                                                   'result': 'Please enter a valid UUID containing only letters, numbers and dashes.'})
+    else:
+        try:
+            response = uuid_input_handler(uuid_input)
+        except Exception as e:
+            logger.critical(f'ERROR: {e}')
+            return templates.TemplateResponse('input.html',
+                                              context={'request': request, 'result': 'Something went wrong internally, please try again'})
+
+        message=response.message
+        uuids_out = response.uuids_out
+        return templates.TemplateResponse('input.html', context={'request': request, 'result': f'{message} {uuids_out}'})
+
+
+@router.get('/materials/{uuid_input}', response_model=UuidsOut)
+async def get_generic_uuid(uuid_input: str)->UuidsOut:
     result = uuid_input_handler(uuid_input)
-    return templates.TemplateResponse('input.html', context={'request': request, 'result': result})
-
-
+    return result
 
 
 @router.get("/config/", tags=["config"])

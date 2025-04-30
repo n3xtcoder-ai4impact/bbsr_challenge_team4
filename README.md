@@ -27,3 +27,5 @@ Detailed instructions to run the app.
 
 The app then runs in your browser at http://127.0.0.1:8000.
 You can find the only available html page here: http://127.0.0.1:8000/input
+The API can be reached at 127.0.0.1:8000/materials/{uuid} to query material UUIDs.
+API docs are at 127.0.0.1:8000/docs
