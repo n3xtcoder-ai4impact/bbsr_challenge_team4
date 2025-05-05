@@ -13,7 +13,7 @@ def get_available_versions()->Dict:
         logger.error('Could not update list of available Oekobaudat data sets. Update aborted.')
         available_versions = {}
     else:
-        available_versions = {item['uuid']: item['name'][0]['value'] for item in response.json()['dataStock']}
+        available_versions = {item['uuid']: [item['name'][0]['value'],item['shortName']] for item in response.json()['dataStock']}
         logger.info(f'Got {len(available_versions)} available versions from Oekobaudat API.')
     return available_versions
 
@@ -26,15 +26,21 @@ def is_update_necessary()->bool:
         update_necessary = False
 
     else:
-        new_version_uuid = list(set(available_versions.keys())-set(OEKOBAUDAT_VERSIONS_OLD.keys()))[0]
-        # todo: Oekobaudat update - make this work for more than one new versions
+        try:
+            new_version_uuid = list(set(available_versions.keys())-set(OEKOBAUDAT_VERSIONS_OLD.keys()))[0]
+        except IndexError:
+            new_version_uuid = {}
 
+        # todo: Oekobaudat update - make this work for more than one new versions
         if not new_version_uuid:
             update_necessary = False
 
         else:
-            if 'release' in available_versions[new_version_uuid].lower():
-                logger.info(f'Found a new release: {new_version_uuid} - {available_versions[new_version_uuid]}')
+            if 'release' in available_versions[new_version_uuid][0].lower():
+                logger.success(f'Found a new release. uuid: {new_version_uuid}, '
+                            f'name: {available_versions[new_version_uuid][1]}, '
+                            f'description: {available_versions[new_version_uuid][0]}.'
+                            f' Will attempt to download.')
                 update_necessary = True
 
     return update_necessary
@@ -46,7 +52,6 @@ def download_new_version(version_uuid: str):
     response = contact_api(url_tail=f'{version_uuid}/exportCSV')
     if not response.status_code == 200:
         logger.error('Update failed, response status_code:{response.status_code}. Could not update Oekobaudat data to release XXX with uuid YYY')
-        update_success = False
 
     else:
         csv_from_api_response(response)
