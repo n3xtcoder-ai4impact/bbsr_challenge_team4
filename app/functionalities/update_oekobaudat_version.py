@@ -1,10 +1,11 @@
 import requests
 import csv
+import os
+import json
 from loguru import logger
-from typing import Dict
-from app.data.OBD.versions import OEKOBAUDAT_VERSIONS_OLD, OEKOBAUDAT_VERSIONS_DOWNLOADED
+from typing import Dict, Optional, Tuple
 
-#TODO: add try-except brackets
+#TODO: add try-except brackets at places most likely to fail
 
 def get_available_versions()->Dict:
     logger.info('Getting available versions from Oekobaudat API')
@@ -18,18 +19,20 @@ def get_available_versions()->Dict:
     return available_versions
 
 
-def is_update_necessary()->bool:
+def is_update_necessary()->Tuple[bool, Optional[str]]:
     """Checks if a new Oekobaudat version is available on the official API"""
     available_versions = get_available_versions()
+    new_version_uuid = None
 
     if not available_versions:
         update_necessary = False
 
     else:
         try:
-            new_version_uuid = list(set(available_versions.keys())-set(OEKOBAUDAT_VERSIONS_OLD.keys()))[0]
+            oekobaudat_versions_old = read_json_file(os.path.join('..', 'data', 'OBD', 'oekobaudat_versions_old.json'))
+            new_version_uuid = list(set(available_versions.keys())-set(oekobaudat_versions_old.keys()))[0]
         except IndexError:
-            new_version_uuid = {}
+            pass
 
         # todo: Oekobaudat update - make this work for more than one new versions
         if not new_version_uuid:
@@ -42,23 +45,35 @@ def is_update_necessary()->bool:
                             f'description: {available_versions[new_version_uuid][0]}.'
                             f' Will attempt to download.')
                 update_necessary = True
+            else:
+                #logger.info('New available dataset is not a new oekobaudat version. Will not download.')
+                update_necessary = False
 
-    return update_necessary
+    return update_necessary, new_version_uuid
 
 
-def download_new_version(version_uuid: str):
+def download_new_version(new_version_uuid: str):
 
-    # download data
-    response = contact_api(url_tail=f'{version_uuid}/exportCSV')
+    response = contact_api(url_tail=f'{new_version_uuid}/exportCSV')
     if not response.status_code == 200:
-        logger.error('Update failed, response status_code:{response.status_code}. Could not update Oekobaudat data to release XXX with uuid YYY')
-
+        logger.error(f'Update failed, response status_code:{response.status_code}. Could not update Oekobaudat data to release XXX with uuid YYY')
     else:
         csv_from_api_response(response)
+        logger.success(f'Downloaded new Oekobaudat version with uuid {new_version_uuid}')
 
-    message = 'Download successful'
-    logger.info('Updated Oekobaudat data to release XXX with uuid YYY')
-    return message
+
+        # todo: insert correct details for new json entry
+        # todo: make sure it updates any existing file with the same name instead of rewriting it.
+        data = {'new_uuid': ['new description', 'new_name']}
+        output_dir = os.path.join('..', 'data', 'OBD')
+        os.makedirs(output_dir, exist_ok=True)  # Ensure the directory exists
+        output_path = os.path.join(output_dir, 'oekobaudat_versions_downloaded.json')
+
+        # Write data to the JSON file
+        with open(output_path, 'w', encoding='utf-8') as json_file:
+            json.dump(data, json_file, ensure_ascii=False, indent=4)
+
+    return
 
 def contact_api(url_tail: str = '', params = None, headers = None, ):
     base_url = 'https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/'
@@ -77,17 +92,33 @@ def contact_api(url_tail: str = '', params = None, headers = None, ):
 
 def csv_from_api_response(response):
     lines = response.text.splitlines()
-    with open('new_version.csv', mode='w', newline='', encoding='utf-8') as csv_file:
+    output_dir = os.path.join('..', 'data', 'OBD')
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, 'new_version.csv')
+
+    with open(output_path, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.writer(csv_file)
         for line in lines:
             row = line.split(';')
             writer.writerow(row)
-
     return
+
+def read_json_file(file_path: str) -> dict:
+    """Reads a JSON file and returns its content as a dictionary."""
+    with open(file_path, 'r', encoding='utf-8') as json_file:
+        return json.load(json_file)
 
 # todo: development stuff below - remove before release!
 if __name__=='__main__':
-    is_update_necessary()
+
+    update_necessary, update_uuid = is_update_necessary()
+    if update_necessary:
+        logger.info('Update is necessary, will attempt to download.')
+        download_new_version(update_uuid)
+
+
+    else:
+        logger.info('No new OBD releases found - no update necessary.')
     # todo: continue here!
 
 
