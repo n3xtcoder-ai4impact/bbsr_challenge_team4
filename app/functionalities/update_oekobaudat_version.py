@@ -15,7 +15,8 @@ class DatasetUpdater:
         self.new_version_description = None
 
 
-    def get_available_versions(self, )->Dict:
+    def get_available_versions(self)->Dict:
+        """Checks the Oekobaudat API for available dataset versions. Returns a dict with names, descriptions and uuids."""
         logger.info('Getting available versions from Oekobaudat API')
         response = self.contact_api(params={'format':'json'})
         if not response.status_code == 200:
@@ -37,7 +38,7 @@ class DatasetUpdater:
 
         else:
             try:
-                # todo: Also compare the downlaoded versions
+                # todo: Also compare the downloaded versions to the available versions
                 oekobaudat_versions_old = read_json_file(file_path='../data/OBD/oekobaudat_versions_old.json')
                 self.new_version_uuid = list(set(available_versions.keys())-set(oekobaudat_versions_old.keys()))[0]
             except IndexError:
@@ -65,13 +66,13 @@ class DatasetUpdater:
 
 
     def download_new_version(self, new_version_uuid: str):
+        """Downloads a new Oekobaudat dataset version with the passed UUID."""
 
         response = self.contact_api(url_tail=f'{new_version_uuid}/exportCSV')
         if not response.status_code == 200:
             logger.error(f'Update failed, response status_code:{response.status_code}. Could not update Oekobaudat data to release XXX with uuid YYY')
         else:
-            self.csv_from_api_response(response)
-
+            self.response_content_handler(response)
 
             # todo: make sure it updates any existing file with the same name instead of rewriting it.
             # write downloaded file name to json file 'oekobaudat_versions_downloaded.json
@@ -87,7 +88,8 @@ class DatasetUpdater:
         logger.info(f'Update process completed')
 
 
-    def csv_from_api_response(self, response):
+    def response_content_handler(self, response):
+        """Manages where to put the content of a downloaded file, whether to overwrite existing files, etc"""
         output_dir = os.path.join('../data/OBD')
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, f'{self.new_version_name}.csv')
@@ -108,6 +110,7 @@ class DatasetUpdater:
 
 
     def contact_api(self, url_tail: str = '', params=None, headers=None):
+        """Makes contact to the Oekobauidat API and returns the response"""
         base_url = 'https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/'
         url = base_url + url_tail
 
@@ -122,7 +125,7 @@ class DatasetUpdater:
         return response
 
     def perform_update(self):
-
+        """Triggers an update if necessary"""
         update_necessary, update_uuid = self.is_update_necessary()
         if update_necessary:
             logger.info('Update is necessary, will attempt to download.')
