@@ -1,13 +1,11 @@
 import requests
-import csv
 import os
 import json
 from loguru import logger
 from typing import Dict, Optional, Tuple
-from app.functionalities.helper_functions import read_json_file
+from app.functionalities.helper_functions import read_json_file, overwrite_smaller_file, write_csv_from_response
 
 #TODO: add try-except brackets at places most likely to fail
-
 
 class DatasetUpdater:
 
@@ -39,7 +37,8 @@ class DatasetUpdater:
 
         else:
             try:
-                oekobaudat_versions_old = read_json_file(self, file_path=os.path.join('../data/OBD/oekobaudat_versions_old.json'))
+                # todo: Also compare the downlaoded versions
+                oekobaudat_versions_old = read_json_file(file_path='../data/OBD/oekobaudat_versions_old.json')
                 self.new_version_uuid = list(set(available_versions.keys())-set(oekobaudat_versions_old.keys()))[0]
             except IndexError:
                 pass
@@ -72,10 +71,10 @@ class DatasetUpdater:
             logger.error(f'Update failed, response status_code:{response.status_code}. Could not update Oekobaudat data to release XXX with uuid YYY')
         else:
             self.csv_from_api_response(response)
-            logger.success(f'Downloaded new Oekobaudat version with uuid {self.new_version_uuid}')
 
 
             # todo: make sure it updates any existing file with the same name instead of rewriting it.
+            # write downloaded file name to json file 'oekobaudat_versions_downloaded.json
             data = {self.new_version_uuid: [self.new_version_description, self.new_version_name]}
             output_dir = os.path.join('../data/OBD')
             os.makedirs(output_dir, exist_ok=True)  # Ensure the directory exists
@@ -85,20 +84,28 @@ class DatasetUpdater:
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
 
-        return
+        logger.info(f'Update process completed')
+
 
     def csv_from_api_response(self, response):
-        lines = response.text.splitlines()
         output_dir = os.path.join('../data/OBD')
         os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, 'new_version.csv')
+        output_path = os.path.join(output_dir, f'{self.new_version_name}.csv')
 
-        with open(output_path, mode='w', newline='', encoding='utf-8') as csv_file:
-            writer = csv.writer(csv_file)
-            for line in lines:
-                row = line.split(';')
-                writer.writerow(row)
+        if os.path.exists(output_path):
+            logger.info(f'Downloaded file "{self.new_version_name}" already exists.')
+            output_path_temp = os.path.join(output_dir, 'obd_temp.csv')
+            write_csv_from_response(response, output_path=output_path_temp)
+            if overwrite_smaller_file(new_file=output_path_temp, old_file=output_path):
+                logger.success(
+                    f'Updated existing Oekobaudat file {self.new_version_name} with UUID {self.new_version_uuid} to a more recent version')
+
+        else:
+            write_csv_from_response(response, output_path=output_path)
+            logger.success(f'Downloaded new Oekobaudat file {self.new_version_name} with UUID {self.new_version_uuid}')
+
         return
+
 
     def contact_api(self, url_tail: str = '', params=None, headers=None):
         base_url = 'https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/'
