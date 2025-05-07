@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+from datetime import datetime
 from loguru import logger
 from typing import Dict, Optional, Tuple
 from app.functionalities.helper_functions import read_json_file, overwrite_smaller_file, write_csv_from_response
@@ -73,17 +74,7 @@ class DatasetUpdater:
             logger.error(f'Update failed, response status_code:{response.status_code}. Could not update Oekobaudat data to release XXX with uuid YYY')
         else:
             self.response_content_handler(response)
-
-            # todo: make sure it updates any existing file with the same name instead of rewriting it.
-            # write downloaded file name to json file 'oekobaudat_versions_downloaded.json
-            data = {self.new_version_uuid: [self.new_version_description, self.new_version_name]}
-            output_dir = os.path.join('../data/OBD')
-            os.makedirs(output_dir, exist_ok=True)  # Ensure the directory exists
-            output_path = os.path.join(output_dir, 'oekobaudat_versions_downloaded.json')
-
-            # Write data to the JSON file
-            with open(output_path, 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, indent=4)
+            self.write_downloaded_version_to_json()
 
         logger.info(f'Update process completed')
 
@@ -132,6 +123,28 @@ class DatasetUpdater:
             self.download_new_version(update_uuid)
         else:
             logger.info('No new OBD releases found - no update necessary.')
+
+    def write_downloaded_version_to_json(self):
+
+        output_dir = os.path.join('../data/OBD')
+        output_path = os.path.join(output_dir, 'oekobaudat_versions_downloaded.json')
+
+        new_version_data = {self.new_version_uuid: [self.new_version_description, self.new_version_name,
+                                                    f'downloaded:{datetime.today().strftime("%Y-%m-%d %H:%M")}']}
+
+        if os.path.exists(output_path):
+            # Read the existing data
+            with open(output_path, 'r', encoding='utf-8') as json_file:
+                try:
+                    existing_data = json.load(json_file)
+                except json.decoder.JSONDecodeError as e:
+                    existing_data = {}
+        else:
+            existing_data = {}
+
+        existing_data.update(new_version_data)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(existing_data, f, ensure_ascii=False, indent=4)
 
 
 # todo: development stuff below - remove before release!
