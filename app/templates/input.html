@@ -2,22 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>UUID search</title>
+    <title>CircularMatch</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="images/team4_logo.png">
 </head>
 <body>
-<form method="post">
-    <label>UUID:</label>
-    <br>
-    <input type="text" name="uuid_input" value="{{ uuid_input }}"/>
-    <input type="submit" value="Submit">
-</form>
-<p>Result: {{ result }}</p>
-<p style="color:#FF0000">REMOVE BEFORE DEPLOYMENT<br>
-Examples for development: <br>
-7e88f530-2367-463a-a7fd-b87c19b0884e - representative dataset <br>
-    1d0124d4-5a30-4501-a8dd-dbddbb1f8ec7 - generic dataset<br>
-    fa5119d5-b0b8-4774-9c23-928f6894bd50 - dataset in OBD_2023 but not in OBD_2024<br>
-
-</p>
+    <img src="images/ai_for_impact.png" class="logo_ai">
+    <div class="container">
+        <img src="images/team4_logo.png" class="logo_team4">
+        <h1>UUID Search</h1>
+        <h2>Please type in your UUID from Ökobaudat:</h2>
+        <form method="post">
+            <input type="text" name="uuid_input" value="{{ uuid_input }}"/>
+            <input type="submit" value="Submit" class="submit_button">
+        </form>
+        <p class="result">Result: {{ result }}</p>
+        <br>
+        <button onclick="">Reembed new data</button> <br>
+        <button onclick="window.location.href='index.html'">Back to the Intro-Page</button>
+    </div>
+    <footer>
+        <p class="footerp">This is a prototype developed by: Timothee, Gustav, Anindita, Minh, Ewa, Valentin</p>
+    </footer>
 </body>
 </html>
