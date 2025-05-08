@@ -25,10 +25,13 @@ router = APIRouter()
 
 from loguru import logger
 
-
 @router.get('/')
-def read_form():
-    return 'hello world'
+def read_form(request: Request):
+    return templates.TemplateResponse('index.html', context={'request': request, 'result': 'none'})
+
+@router.get('/index')
+def read_form(request: Request):
+    return templates.TemplateResponse('index.html', context={'request': request, 'result': 'none'})
 
 #todo: get current version of oekobaudat's dataset into this endpoint
 @router.get("/dataset_info")
