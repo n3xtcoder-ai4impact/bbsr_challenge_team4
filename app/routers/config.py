@@ -23,10 +23,13 @@ router = APIRouter()
 
 from loguru import logger
 
-
 @router.get('/')
-def read_form():
-    return 'hello world'
+def read_form(request: Request):
+    return templates.TemplateResponse('index.html', context={'request': request, 'result': 'none'})
+
+@router.get('/index')
+def read_form(request: Request):
+    return templates.TemplateResponse('index.html', context={'request': request, 'result': 'none'})
 
 @router.get("/input")
 def form_post(request: Request):
