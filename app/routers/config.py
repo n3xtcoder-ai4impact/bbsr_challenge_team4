@@ -1,3 +1,5 @@
+from pyexpat.errors import messages
+
 from fastapi import APIRouter, Request, Form
 from pydantic import ValidationError
 
@@ -27,6 +29,15 @@ from loguru import logger
 @router.get('/')
 def read_form():
     return 'hello world'
+
+#todo: get current version of oekobaudat's dataset into this endpoint
+@router.get("/dataset_info")
+def show_dataset_information():
+    dataset_info = {'uuid':'abc-123',
+                    'name':'Ökobaudat1',
+                    'description':'A very nice dataset!'}
+    message = f'Current version of the dataset: {dataset_info}'
+    return message
 
 @router.get("/input")
 def form_post(request: Request):

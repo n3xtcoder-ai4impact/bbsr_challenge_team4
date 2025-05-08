@@ -6,7 +6,7 @@ from typing import Union, Dict
 def uuid_input_handler(uuid_input: str) -> UuidsOut:
     logger.info(f'user input: "{uuid_input}"')
     uuid_output=''
-
+    #todo: make uuid_input_handler use all available OBD versions in data directory
     for file in [OBD_2024, OBD_2023, OBD_2020]:
         if uuid_input in file['UUID'].unique():
             logger.info(f'Found UUID "{uuid_input}" in OBD')
