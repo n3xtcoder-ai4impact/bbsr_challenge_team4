@@ -1,6 +1,7 @@
 import pandas as pd
 from loguru import logger
 
+# todo: load all OBD files from data/OBD
 try:
     tbaustoff = pd.read_csv('app/data/tBaustoff/tBaustoff_with_OBD_mapping.csv', encoding='utf-8', low_memory=False)
 

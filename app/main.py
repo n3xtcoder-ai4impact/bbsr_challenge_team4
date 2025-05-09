@@ -1,6 +1,6 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from app.configuration.getConfig import Config
-# routers
 from app.routers import config, benchmark
 from loguru import logger
 
@@ -13,6 +13,8 @@ API_VERSION = configuration.API_VERSION
 # fastAPI Instance
 app = FastAPI(
     title="BSSR Challenge Team 4")
+
+app.mount("/app/static", StaticFiles(directory="app/static"), name="static")
 
 
 # include the routers
