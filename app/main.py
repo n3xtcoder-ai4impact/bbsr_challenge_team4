@@ -16,6 +16,15 @@ app = FastAPI(
 
 app.mount("/app/static", StaticFiles(directory="app/static"), name="static")
 
+# specific dataset:
+# 906a624c-2360-4a27-8493-c10fe7d398b2
+
+# todo: load data into app.state
+# todo: reload data after every update
+# todo: show "used dataset version" on input html
+# todo: Build "launch update process" html
+# todo: change old logging to loguru
+
 
 # include the routers
 app.include_router(config.router)

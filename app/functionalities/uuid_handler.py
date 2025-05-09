@@ -11,16 +11,16 @@ def uuid_input_handler(uuid_input: str) -> UuidsOut:
         if uuid_input in file['UUID'].unique():
             logger.info(f'Found UUID "{uuid_input}" in OBD')
             if 'generic dataset' in list(file[file['UUID']==uuid_input][ 'Typ']):
-                message= 'The uuid belongs to a generic material. Nothing to do here.'
+                message= 'The uuid belongs to a generic material.'
                 logger.info(f'{message}')
             else:
-                df_generic_matches = get_generic_uuids_from_specific_uuid(uuid_specific=uuid_input)
+                df_generic_matches = list(get_generic_uuids_from_specific_uuid(uuid_specific=uuid_input))
                 logger.info(f'UUID is a non-generic dataset.')
                 if len(df_generic_matches) == 0:
-                    message='Could not find any generic materials that match the input uuid.'
+                    message='Could not find any generic materials that match the input uuid'
                     logger.info(f'{message}')
                 else:
-                    uuid_output=['a', 'b', 'c'] #list(df_generic_matches["uuid_generic"])
+                    uuid_output=df_generic_matches #list(df_generic_matches["uuid_generic"])
                     message='Found generic materials that match input uuid.'
                     logger.info(f'{message}:{uuid_output}')
             break
@@ -37,6 +37,6 @@ def uuid_input_handler(uuid_input: str) -> UuidsOut:
 
 def get_generic_uuids_from_specific_uuid(uuid_specific:str = None):
     """Returns the UUIDs of several generic datasets and their match scores given a UUID of a specific dataset"""
-    df_matches = generic_specific_matches[generic_specific_matches['uuid_specific']=='abc-123']
-    #todo: exchange 'abc-123' for uuid_specific before deployment
+    logger.info(f'{print(generic_specific_matches)}')
+    df_matches = generic_specific_matches[generic_specific_matches['uuid_specific']==uuid_specific]['uuid_generic']
     return df_matches
