@@ -44,7 +44,7 @@ def show_dataset_information():
 
 @router.get("/input")
 def form_post(request: Request):
-    result = "(none)"
+    result = "(waiting for input)"
     return templates.TemplateResponse('input.html', context={'request': request, 'result': result})
 
 
@@ -68,7 +68,7 @@ def form_post(request: Request, uuid_input: str = Form(None)):
 
         message=response.message
         uuids_out = response.uuids_out
-        return templates.TemplateResponse('input.html', context={'request': request, 'result': f'{message} {uuids_out}'})
+        return templates.TemplateResponse('input.html', context={'request': request, 'result': f'{message}<br>{uuids_out}'})
 
 
 @router.get('/materials/{uuid_input}', response_model=UuidsOut)

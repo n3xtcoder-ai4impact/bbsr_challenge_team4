@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>CircularMatch</title>
-    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="app/static/css/styles.css">
     <link rel="icon" type="image/png" href="../static/img/team4_logo.png">
 </head>
 <body>
-    <img src="../static/img/ai_for_impact.png" class="logo_ai">
-    <img src="../static/img/elca_logo.png" class="logo_elca">
+    <img src="app/static/img/ai_for_impact.png" class="logo_ai">
+    <img src="app/static/img/elca_logo.png" class="logo_elca">
     <div class="container">
-        <img src="../static/img/team4_logo.png" class="logo_team4">
+        <img src="app/static/img/team4_logo.png" class="logo_team4">
         <h1>UUID Search</h1>
         <h2>Please type in your UUID from Ökobaudat:</h2>
         <form method="post">
             <input type="text" name="uuid_input" value="{{ uuid_input }}"/>
             <input type="submit" value="Submit" class="submit_button">
         </form>
-        <p class="result">Result: {{ result }}</p>
+        <p class="result">{{ result|safe }}</p>
         <br>
-        <button onclick="">Reembed new data</button> <br>
-        <button onclick="window.location.href='index.html'">Back to the Intro-Page</button>
+        <button onclick="">Update Ökobaudat data</button> <br>
+        <button onclick="window.location.href='index'">Back to the Intro-Page</button>
     </div>
     <footer>
         <p class="footerp">This is a prototype developed by: Timothee, Gustav, Anindita, Minh, Ewa, Valentin</p>
