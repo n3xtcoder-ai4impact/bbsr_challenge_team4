@@ -1,9 +1,8 @@
-/* style.css */
 body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background: linear-gradient(to bottom right, #2c3e50, #3498db);
+    background: linear-gradient(to bottom right, #319c31, #3498db);
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -11,7 +10,7 @@ body {
 }
 
 .container {
-    background-color: rgba(255, 255, 255, 0.85); /* leichte Transparenz */
+    background-color: rgba(255, 255, 255, 0.85);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -33,6 +32,16 @@ body {
     z-index: 1000;
 }
 
+.logo_elca {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    min-width: 60px;
+    width: 5vw;
+    max-width: 80px;
+    z-index: 1000;
+}
+
 .logo_team4 {
     min-width: 70px;
     width: 10vb;
@@ -41,18 +50,22 @@ body {
 h1 {
     margin-top: 0;
     font-size: 2rem;
-    color: #2c3e50;
+    color: #34495e ;
 }
 
 h2 {
     margin-top: 0;
     font-size: 1.2rem;
-    color: #2c3e50;
+    color: #3498db;
 }
 
 p {
     font-size: 1rem;
-    color: #34495e;
+    color: #34495e ;
+}
+
+a {
+    color: #3498db ;
 }
 
 .result {
