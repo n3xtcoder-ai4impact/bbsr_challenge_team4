@@ -1,0 +1,62 @@
+
+
+import pandas as pd
+from sentence_transformers import SentenceTransformer, util
+
+model = SentenceTransformer('distiluse-base-multilingual-cased-v1')
+
+tbaustoff_df = pd.read_csv("tBaustoff_with_OBD_mapping.csv", low_memory=False)
+generic_2020 = pd.read_csv("OBD_2020_II.csv", sep=";", encoding="ISO-8859-1", low_memory=False)
+generic_2023 = pd.read_csv("OBD_2023_I.csv", sep=";", encoding="ISO-8859-1", low_memory=False)
+generic_2024 = pd.read_csv("OBD_2024_I.csv", sep=";", encoding="ISO-8859-1", low_memory=False)
+
+generic_all_years_df = pd.concat([
+    generic_2020[generic_2020["Typ"] == "generic dataset"],
+    generic_2023[generic_2023["Typ"] == "generic dataset"],
+    generic_2024[generic_2024["Typ"] == "generic dataset"]
+], ignore_index=True)
+
+generic_df = generic_all_years_df.copy()
+generic_df['Name (en)'] = generic_df['Name (en)'].fillna('')
+unmapped_df = tbaustoff_df[tbaustoff_df['oekobaudatProcessUuid'].isna()].copy()
+unmapped_df['productName'] = unmapped_df['productName'].fillna('')
+
+generic_names = generic_df['Name (en)'].tolist()
+generic_embeddings = model.encode(generic_names, convert_to_tensor=True)
+
+similarity_threshold = 0.75
+
+matches = []
+for _, row in unmapped_df.iterrows():
+    specific_name = row['productName']
+    if not specific_name.strip():
+        continue
+
+    specific_embedding = model.encode(specific_name, convert_to_tensor=True)
+    cosine_scores = util.cos_sim(specific_embedding, generic_embeddings)[0]
+
+    top_index = cosine_scores.argmax().item()
+    top_score = cosine_scores[top_index].item()
+
+    matched_name = generic_df.iloc[top_index]['Name (en)']
+    matched_uuid = generic_df.iloc[top_index]['UUID']
+
+    if top_score >= similarity_threshold:
+        matches.append({
+            "Specific Material Name": specific_name,
+            "Matched Generic Material Name": matched_name,
+            "Generic Material UUID": matched_uuid,
+            "Similarity Score": round(top_score, 4)
+        })
+    else:
+        matches.append({
+            "Specific Material Name": specific_name,
+            "Matched Generic Material Name": "❌ No Good Match Found",
+            "Generic Material UUID": "",
+            "Similarity Score": round(top_score, 4)
+        })
+results_df = pd.DataFrame(matches)
+results_df = results_df.sort_values(by="Similarity Score", ascending=False)
+results_df.to_csv("semantic_matches_strong_filtered_sorted.csv", index=False)
+
+print("✅ Matching complete! File saved as 'semantic_matches_strong_filtered_sorted.csv'")
