@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Request, Form
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
 from app.configuration.getConfig import Config
 from app.functionalities.uuid_handler import uuid_input_handler
 from app.functionalities.update_oekobaudat_version import DatasetUpdater
@@ -49,10 +48,7 @@ def run_manual_update(request:Request):
     updater.perform_update()
     result = 'Update process completed'
     logger.info('Update process completed')
-    #return RedirectResponse(url="/input", status_code=303)
-    return templates.TemplateResponse('input.html',
-                                      context={'request': request, 'result': result})
-
+    return result
 
 @router.post("/input")
 def form_post(request: Request, uuid_input: str = Form(None), update: bool = Form(False)):
