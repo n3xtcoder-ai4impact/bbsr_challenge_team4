@@ -1,5 +1,7 @@
 import pandas as pd
+import json
 from pathlib import Path
+from app.model.RouterModels import DatasetVersion
 from loguru import logger
 
 
@@ -13,6 +15,7 @@ class DataLoader:
                                                     low_memory=False)
         logger.info(f'Loaded specific_generic_mapping.csv')
 
+        self.current_dataset_version = self.load_dataset_version('app/data/OBD/current_dataset_version.json')
 
     def _load_obd_directory(self, directory: str) -> pd.DataFrame:
         """
@@ -38,3 +41,7 @@ class DataLoader:
             return pd.concat(all_dfs, ignore_index=True)
         else:
             return pd.DataFrame()
+
+    def load_dataset_version(self, filepath: str) -> DatasetVersion:
+        json_data = json.loads(Path(filepath).read_text(encoding='utf-8'))
+        return DatasetVersion(**json_data)

@@ -26,6 +26,11 @@ Detailed instructions to run the app.
 **With and without Docker**
 
 The app then runs in your browser at http://127.0.0.1:8000.
-You can find the only available html page here: http://127.0.0.1:8000/input
-The API can be reached at 127.0.0.1:8000/materials/{uuid} to query material UUIDs.
+You can find the running app here: http://127.0.0.1:8000
+
+
+The API can be reached at 127.0.0.1:8000/api and has several endpoints:
+- /materials/{uuid} let's you query specific material UUIDs and returns a matching generic material UUID
+- /update looks for updates of the Ökobaudat dataset
+- /dataset_info returns the used dataset and when it was updated
 API docs are at 127.0.0.1:8000/docs

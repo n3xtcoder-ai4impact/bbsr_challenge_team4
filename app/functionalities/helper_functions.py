@@ -1,7 +1,11 @@
 import json
 import os
 import csv
+from pathlib import Path
 from loguru import logger
+
+from app.model.RouterModels import DatasetVersion
+
 
 def read_json_file(file_path: str) -> dict:
     """Reads a JSON file and returns its content as a dictionary."""
@@ -42,3 +46,7 @@ def write_csv_from_response(response, output_path: str):
         for line in lines:
             row = line.split(';')
             writer.writerow(row)
+
+def save_dataset_version(filepath: str, dataset=DatasetVersion):
+    json_data = dataset.__dict__  # converts model to dict
+    Path(filepath).write_text(json.dumps(json_data, indent=2, ensure_ascii=False), encoding='utf-8')

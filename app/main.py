@@ -16,8 +16,6 @@ from loguru import logger
 # generic:
 # ed391263-0e6d-43dd-ad3e-43607545f281
 
-# make /update endpoint work as API endpoint
-# look into downloaded updates before running update
 # todo: show log on /log (?)
 # todo: show "used dataset version" and "last updated at" on input html
 # todo: write last updated file to a json/csv

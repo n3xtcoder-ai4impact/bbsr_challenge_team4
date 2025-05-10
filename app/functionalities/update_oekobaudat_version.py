@@ -15,6 +15,8 @@ class DatasetUpdater:
         self.new_version_uuid = None
         self.new_version_name = None
         self.new_version_description = None
+        self.new_version_message = 'no message'
+        self.new_version_datetime = None
 
 
     def get_available_versions(self)->Dict:
@@ -40,7 +42,6 @@ class DatasetUpdater:
 
         else:
             try:
-                # todo: Also compare the downloaded versions to the available versions
                 oekobaudat_versions_old = read_json_file(file_path='app/data/OBD/oekobaudat_versions_old.json')
                 self.new_version_uuid = list(set(available_versions.keys())-set(oekobaudat_versions_old.keys()))[0]
             except IndexError:
@@ -82,7 +83,7 @@ class DatasetUpdater:
 
     def response_content_handler(self, response):
         """Manages where to put the content of a downloaded file, whether to overwrite existing files, etc"""
-        output_dir = os.path.join('../data/OBD')
+        output_dir = os.path.join('app/data/OBD')
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, f'{self.new_version_name}.csv')
 
@@ -93,12 +94,12 @@ class DatasetUpdater:
             if overwrite_smaller_file(new_file=output_path_temp, old_file=output_path):
                 logger.success(
                     f'Updated existing Oekobaudat file {self.new_version_name} with UUID {self.new_version_uuid} to a more recent version')
+                self.new_version_message = 'Updated the existing file to a more recent version'
 
         else:
             write_csv_from_response(response, output_path=output_path)
             logger.success(f'Downloaded new Oekobaudat file {self.new_version_name} with UUID {self.new_version_uuid}')
-
-        return
+            self.new_version_message = 'Downloaded a new Oekobaudat file'
 
 
     def contact_api(self, url_tail: str = '', params=None, headers=None):
@@ -120,21 +121,28 @@ class DatasetUpdater:
         """Triggers an update if necessary"""
         update_necessary, update_uuid = self.is_update_necessary()
         if update_necessary:
-            logger.info('Update is necessary, will attempt to download.')
+            logger.info('Update is possible, will download.')
             self.download_new_version(update_uuid)
         else:
-            logger.info('No new OBD releases found - no update necessary.')
+            self.new_version_message = 'No new OBD releases found - no update necessary.'
+            logger.info(self.new_version_message)
+
+        return (self.new_version_message,
+                self.new_version_name,
+                self.new_version_description,
+                self.new_version_uuid,
+                self.new_version_datetime)
 
     def write_downloaded_version_to_json(self):
 
-        output_dir = os.path.join('../data/OBD')
+        output_dir = os.path.join('app/data/OBD')
         output_path = os.path.join(output_dir, 'oekobaudat_versions_downloaded.json')
 
+        self.new_version_datetime = datetime.today().strftime("%Y-%m-%d %H:%M")
         new_version_data = {self.new_version_uuid: [self.new_version_description, self.new_version_name,
-                                                    f'downloaded:{datetime.today().strftime("%Y-%m-%d %H:%M")}']}
+                                                    f'{self.new_version_datetime}']}
 
         if os.path.exists(output_path):
-            # Read the existing data
             with open(output_path, 'r', encoding='utf-8') as json_file:
                 try:
                     existing_data = json.load(json_file)
@@ -146,12 +154,3 @@ class DatasetUpdater:
         existing_data.update(new_version_data)
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(existing_data, f, ensure_ascii=False, indent=4)
-
-
-# todo: development stuff below - remove before release!
-if __name__=='__main__':
-
-    updater = DatasetUpdater()
-    updater.perform_update()
-
-
