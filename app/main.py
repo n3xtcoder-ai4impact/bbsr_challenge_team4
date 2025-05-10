@@ -1,32 +1,43 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 from app.configuration.getConfig import Config
 from app.routers import config, benchmark
+from app.functionalities.data_loader import DataLoader
 from loguru import logger
 
-# get the config file
 configuration = Config()
 
 API_ID = configuration.API_ID
 API_VERSION = configuration.API_VERSION
 
-# fastAPI Instance
-app = FastAPI(
-    title="BSSR Challenge Team 4")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.data = DataLoader() # type: ignore[attr-defined]
+    yield
+    logger.info('App shutdown successful')
+
+app = FastAPI(title="BSSR Challenge Team 4",
+              lifespan=lifespan)
 
 app.mount("/app/static", StaticFiles(directory="app/static"), name="static")
 
+# todo: remove before deployment
 # specific dataset:
 # 906a624c-2360-4a27-8493-c10fe7d398b2
 
-# todo: load data into app.state
+# generic:
+# ed391263-0e6d-43dd-ad3e-43607545f281
+
 # todo: reload data after every update
+# todo: make "/update" run an update
+# todo: show log on /log (?)
+# todo: write last updated file to a json/csv
 # todo: show "used dataset version" on input html
 # todo: Build "launch update process" html
 # todo: change old logging to loguru
 
 
-# include the routers
 app.include_router(config.router)
 app.include_router(benchmark.router)
 
@@ -35,5 +46,4 @@ app.include_router(benchmark.router)
 if configuration.is_local:
     import uvicorn
     if __name__ == '__main__':
-        # if run locally, the port might already be in use, just use another one then.
         uvicorn.run(app, host='127.0.0.1', port=8000)

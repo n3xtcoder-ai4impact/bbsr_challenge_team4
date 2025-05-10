@@ -1,15 +1,40 @@
 import pandas as pd
+from pathlib import Path
 from loguru import logger
 
-# todo: load all OBD files from data/OBD
-try:
-    tbaustoff = pd.read_csv('app/data/tBaustoff/tBaustoff_with_OBD_mapping.csv', encoding='utf-8', low_memory=False)
 
-    OBD_2020 = pd.read_csv('app/data/OBD/OBD_2020_II.csv', delimiter=';', encoding='latin-1', low_memory=False)
-    OBD_2023 = pd.read_csv('app/data/OBD/OBD_2023_I.csv', delimiter=';', encoding='latin-1', low_memory=False)
-    OBD_2024 = pd.read_csv('app/data/OBD/OBD_2024_I.csv', delimiter=';', encoding='latin-1', low_memory=False)
-    generic_specific_matches = pd.read_csv('app/data/semantic_matching/generic_specific_matches.csv', low_memory=False)
-except FileNotFoundError as e:
-    logger.critical(f'Could not load a file. Error: {e.strerror} {e.filename}')
-except Exception as e:
-    logger.critical(f'Could not load all files. Error:{e}')
+class DataLoader:
+    def __init__(self):
+        self.obd = self._load_obd_directory('app/data/OBD')
+        self.tbaustoff = pd.read_csv('app/data/tBaustoff/tBaustoff_with_OBD_mapping.csv', encoding='utf-8',
+                                     low_memory=False)
+        logger.info(f'Loaded tBaustoff.csv')
+        self.specific_generic_mapping = pd.read_csv('app/data/semantic_matching/specific_generic_mapping.csv',
+                                                    low_memory=False)
+        logger.info(f'Loaded specific_generic_mapping.csv')
+
+
+    def _load_obd_directory(self, directory: str) -> pd.DataFrame:
+        """
+        Loads all CSV files from the given directory and combines them into one DataFrame.
+        Adds a 'source_file' column with the original filename.
+        """
+        path = Path(directory)
+        all_dfs = []
+
+        for csv_file in path.glob('*.csv'):
+            if not 'obd' in csv_file.name.lower():
+                continue
+            try:
+                df = pd.read_csv(csv_file, delimiter=';', encoding='latin-1', low_memory=False)
+                df['source_file'] = csv_file.name
+                logger.info(f'Loaded {csv_file.name}')
+                all_dfs.append(df)
+            except Exception as e:
+                logger.critical(f'Could not load all files. Error:{e}')
+                continue
+
+        if all_dfs:
+            return pd.concat(all_dfs, ignore_index=True)
+        else:
+            return pd.DataFrame()

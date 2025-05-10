@@ -1,39 +1,39 @@
-from pyexpat.errors import messages
-
 from fastapi import APIRouter, Request, Form
-from pydantic import ValidationError
+from fastapi.templating import Jinja2Templates
 
 from app.configuration.getConfig import Config
-from fastapi.templating import Jinja2Templates
-templates = Jinja2Templates(directory="app/templates/")
-
 from app.functionalities.uuid_handler import uuid_input_handler
 from app.model.RouterModels import UuidsOut
+from loguru import logger
 
+templates = Jinja2Templates(directory="app/templates/")
 
-# get the config file
 configuration = Config()
 
 # SET THE API-ID: DO NOT CHANGE THIS!
 API_ID = configuration.API_ID
 API_VERSION = configuration.API_VERSION
 
-# fastAPI Instance
 router = APIRouter()
-# Logger
-#logger = configuration.logger
 
-from loguru import logger
+
+@router.get("/update")
+def get_obd(request: Request):
+    # todo: make this run an update
+    logger.info('obd data accessed')
+    return {'message':'Nothing'}
 
 @router.get('/')
 def read_form(request: Request):
-    return templates.TemplateResponse('index.html', context={'request': request, 'result': 'none'})
+    return templates.TemplateResponse('index.html',
+                                      context={'request': request, 'result': 'none'})
 
 @router.get('/index')
 def read_form(request: Request):
-    return templates.TemplateResponse('index.html', context={'request': request, 'result': 'none'})
+    return templates.TemplateResponse('index.html',
+                                      context={'request': request, 'result': 'none'})
 
-#todo: get current version of oekobaudat's dataset into this endpoint
+#todo: get current version of oekobaudat's dataset into this endpoint - or show in footnote / somewhere else
 @router.get("/dataset_info")
 def show_dataset_information():
     dataset_info = {'uuid':'abc-123',
@@ -45,7 +45,8 @@ def show_dataset_information():
 @router.get("/input")
 def form_post(request: Request):
     result = "(waiting for input)"
-    return templates.TemplateResponse('input.html', context={'request': request, 'result': result})
+    return templates.TemplateResponse('input.html',
+                                      context={'request': request, 'result': result})
 
 
 @router.post("/input")
@@ -60,20 +61,34 @@ def form_post(request: Request, uuid_input: str = Form(None)):
                                                    'result': 'Please enter a valid UUID containing only letters, numbers and dashes.'})
     else:
         try:
-            response = uuid_input_handler(uuid_input)
+            response = uuid_input_handler(uuid_input=uuid_input,
+                                          obd=request.app.state.data.obd,
+                                          specific_generic_mapping=request.app.state.data.specific_generic_mapping)
         except Exception as e:
             logger.critical(f'ERROR: {e}')
             return templates.TemplateResponse('input.html',
-                                              context={'request': request, 'result': 'Something went wrong internally, please try again'})
+                                              context={'request': request,
+                                                       'result': 'Something went wrong internally, please try again'})
 
-        message=response.message
         uuids_out = response.uuids_out
-        return templates.TemplateResponse('input.html', context={'request': request, 'result': f'{message}<br>{uuids_out}'})
 
+        if not uuids_out:
+            return templates.TemplateResponse('input.html',
+                                              context={'request': request,
+                                                       'result': f'{response.message}'})
+        else:
+            return templates.TemplateResponse('input.html',
+                                              context={'request': request,
+                                                       'result': f'{response.message}:<br><br>' +
+                                                                 "<br>".join([f'{i + 1}: {uuid}' for i, uuid in enumerate(uuids_out)])
+                                                       }
+                                              )
 
 @router.get('/materials/{uuid_input}', response_model=UuidsOut)
-async def get_generic_uuid(uuid_input: str)->UuidsOut:
-    result = uuid_input_handler(uuid_input)
+async def get_generic_uuid(request: Request, uuid_input: str)->UuidsOut:
+    result = uuid_input_handler(uuid_input=uuid_input,
+                                obd=request.app.state.data.obd,
+                                specific_generic_mapping=request.app.state.data.specific_generic_mapping)
     return result
 
 
