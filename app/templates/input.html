@@ -19,8 +19,12 @@
         </form>
         <p class="result">{{ result|safe }}</p>
         <br>
-        <button onclick="">Update Ökobaudat data</button> <br>
+        <form method="post">
+            <input type="hidden" name="update" value="true">
+            <button type="submit">Update Ökobaudat data</button>
+        </form>
         <button onclick="window.location.href='index'">Back to the Intro-Page</button>
+
     </div>
     <footer>
         <p class="footerp">This is a prototype developed by: Timothee, Gustav, Anindita, Minh, Ewa, Valentin</p>

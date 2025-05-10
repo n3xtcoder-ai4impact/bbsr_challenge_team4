@@ -29,12 +29,11 @@ app.mount("/app/static", StaticFiles(directory="app/static"), name="static")
 # generic:
 # ed391263-0e6d-43dd-ad3e-43607545f281
 
+# look into downloaded updates before running update
 # todo: reload data after every update
-# todo: make "/update" run an update
 # todo: show log on /log (?)
 # todo: write last updated file to a json/csv
 # todo: show "used dataset version" on input html
-# todo: Build "launch update process" html
 # todo: change old logging to loguru
 
 

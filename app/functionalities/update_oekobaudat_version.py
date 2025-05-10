@@ -41,7 +41,7 @@ class DatasetUpdater:
         else:
             try:
                 # todo: Also compare the downloaded versions to the available versions
-                oekobaudat_versions_old = read_json_file(file_path='../data/OBD/oekobaudat_versions_old.json')
+                oekobaudat_versions_old = read_json_file(file_path='app/data/OBD/oekobaudat_versions_old.json')
                 self.new_version_uuid = list(set(available_versions.keys())-set(oekobaudat_versions_old.keys()))[0]
             except IndexError:
                 pass
