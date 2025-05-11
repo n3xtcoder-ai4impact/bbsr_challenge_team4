@@ -18,7 +18,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from app.configuration.getConfig import Config
-from app.routers import config, benchmark
+from app.routers import config
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from app.functionalities.update_oekobaudat_version import DatasetUpdater
@@ -61,7 +61,6 @@ app = FastAPI(title="BSSR Challenge Team 4",
 app.mount("/app/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(config.router)
-app.include_router(benchmark.router)
 
 
 # needed to start the application locally for development/debugging purpose. Will never be called on K8s.

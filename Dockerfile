@@ -1,6 +1,6 @@
 FROM python:3.10-slim-buster
 
-LABEL maintainer="Florian Salfenmoser <florian.salfenmoser.dev@outlook.de>"
+LABEL maintainer="Gustav Geißler <gustav.geissler@gmail.com>"
 LABEL build-date=$BUILD_DATE
 
 # Install DE language
