@@ -6,8 +6,6 @@ from loguru import logger
 from typing import Dict, Optional, Tuple
 from app.functionalities.helper_functions import read_json_file, overwrite_smaller_file, write_csv_from_response
 
-#TODO: add try-except brackets at places most likely to fail
-
 
 class DatasetUpdater:
     """Used for updating Ökobaudat data. Contacts the official API for available datasets, compares them to the already
@@ -37,7 +35,15 @@ class DatasetUpdater:
 
 
     def is_update_necessary(self)->Tuple[bool, Optional[str]]:
-        """Checks if a new Oekobaudat version is available on the official API"""
+        """Checks if a new Oekobaudat version is available on the official API
+
+        FUTURE IMPROVEMENTS:
+            - In this state, the process misses incremental updates to the file currently in use, because its uuid is
+            already in oekobaudat_versions_old.json
+            - Instead of checking all versions in the API response, just checking the last one should be enough.
+            In my understanding, a new version should include all older versions. As the UUIDs are unique, they will
+            never be overwritten and deletions may occure because a product is not produced anymore.
+        """
         available_versions = self.get_available_versions()
 
 
@@ -51,7 +57,6 @@ class DatasetUpdater:
             except IndexError:
                 pass
 
-            # todo: Oekobaudat update - make this work for more than one new versions
             if not self.new_version_uuid:
                 update_necessary = False
 
