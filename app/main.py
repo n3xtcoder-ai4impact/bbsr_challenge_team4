@@ -18,7 +18,6 @@ from loguru import logger
 
 # todo: show log on /log (?)
 # todo: show "used dataset version" and "last updated at" on input html
-# todo: write last updated file to a json/csv
 # todo: change old logging to loguru
 
 configuration = Config()

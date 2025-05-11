@@ -6,6 +6,7 @@ from loguru import logger
 
 
 class DataLoader:
+    """Loads Ökobaudat and tBaustoff CSVs as well as other (internal) files into memory."""
     def __init__(self):
         self.obd = self._load_obd_directory('app/data/OBD')
         self.tbaustoff = pd.read_csv('app/data/tBaustoff/tBaustoff_with_OBD_mapping.csv', encoding='utf-8',

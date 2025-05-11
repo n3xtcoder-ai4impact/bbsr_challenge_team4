@@ -2,9 +2,8 @@ import json
 import os
 import csv
 from pathlib import Path
-from loguru import logger
-
 from app.model.RouterModels import DatasetVersion
+from loguru import logger
 
 
 def read_json_file(file_path: str) -> dict:
@@ -48,5 +47,7 @@ def write_csv_from_response(response, output_path: str):
             writer.writerow(row)
 
 def save_dataset_version(filepath: str, dataset=DatasetVersion):
-    json_data = dataset.__dict__  # converts model to dict
+    """Writes a variable of Type DatasetVersion as a dict into a json file.
+    Used for saving the current dataset version to app/data/OBD"""
+    json_data = dataset.__dict__
     Path(filepath).write_text(json.dumps(json_data, indent=2, ensure_ascii=False), encoding='utf-8')

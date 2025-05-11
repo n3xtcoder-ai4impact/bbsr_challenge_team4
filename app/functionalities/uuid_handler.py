@@ -5,6 +5,7 @@ from loguru import logger
 def uuid_input_handler(uuid_input: str,
                        obd:pd.DataFrame,
                        specific_generic_mapping:pd.DataFrame) -> UuidsOut:
+    """Checks if a user input uuid is in OBD and decides how to proceed with it."""
 
     logger.info(f'user input: "{uuid_input}"')
     uuid_output=[]

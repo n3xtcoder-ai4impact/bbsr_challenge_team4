@@ -20,6 +20,7 @@ router = APIRouter()
 
 @router.get('/api/materials/{uuid_input}', response_model=UuidsOut)
 async def get_generic_uuid(request: Request, uuid_input: str)->UuidsOut:
+    """Takes in a UUID and, if it is specific and found, returns the generic matches for it"""
     result = uuid_input_handler(uuid_input=uuid_input,
                                 obd=request.app.state.data.obd,
                                 specific_generic_mapping=request.app.state.data.specific_generic_mapping)
@@ -28,10 +29,12 @@ async def get_generic_uuid(request: Request, uuid_input: str)->UuidsOut:
 
 @router.get("/api/dataset_info", response_model=DatasetVersion)
 async def show_dataset_information(request: Request)->DatasetVersion:
+    """Return information about the Ökobaudat dataset currently in use"""
     return request.app.state.data.current_dataset_version
 
 @router.get("/api/update", response_model=UpdateResponse)
 async def run_api_update()->UpdateResponse:
+    """Updates the Ökobaudat dataset"""
     updater = DatasetUpdater()
     message, name, description, uuid, datetime = updater.perform_update()
 
@@ -69,6 +72,7 @@ def form_post(request: Request):
 
 @router.post("/input")
 def form_post(request: Request, uuid_input: str = Form(None), update: bool = Form(False)):
+    """Handles all requests from the /input page: UUID queries and update button clicks"""
     if update:
         updater = DatasetUpdater()
         updater.perform_update()
@@ -109,6 +113,7 @@ def form_post(request: Request, uuid_input: str = Form(None), update: bool = For
                                                        }
                                               )
 
+# todo: remove manual update endpoint. Add Re-embedding dummy to update locations.
 @router.get('/update')
 def run_manual_update(request:Request):
     updater = DatasetUpdater()

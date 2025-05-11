@@ -10,7 +10,11 @@ from app.functionalities.helper_functions import read_json_file, overwrite_small
 
 
 class DatasetUpdater:
-
+    """Used for updating Ökobaudat data. Contacts the official API for available datasets, compares them to the already
+    known datasets and downloads a newer version if one is available.
+    Updates are not always new versions (like 'OBD_2020 I' vs 'OBD_2020_II'), but can mean an existing version gets
+    additional entries. In that case, the file in the API is longer and the existing file in the app gets overwritten
+    with it."""
     def __init__(self):
         self.new_version_uuid = None
         self.new_version_name = None
@@ -70,13 +74,12 @@ class DatasetUpdater:
 
     def download_new_version(self, new_version_uuid: str):
         """Downloads a new Oekobaudat dataset version with the passed UUID."""
-
         response = self.contact_api(url_tail=f'{new_version_uuid}/exportCSV')
         if not response.status_code == 200:
             logger.error(f'Update failed, response status_code:{response.status_code}. Could not update Oekobaudat data to release XXX with uuid YYY')
         else:
             self.response_content_handler(response)
-            self.write_downloaded_version_to_json()
+            self.write_downloaded_version_details_to_json()
 
         logger.info(f'Update process completed')
 
@@ -106,19 +109,15 @@ class DatasetUpdater:
         """Makes contact to the Oekobauidat API and returns the response"""
         base_url = 'https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/'
         url = base_url + url_tail
-
         if params is None:
             params = {}
-
         if headers is None:
             headers = {}
-
         response = requests.get(url, params=params, headers=headers)
-
         return response
 
     def perform_update(self):
-        """Triggers an update if necessary"""
+        """Triggers an update if deemed necessary"""
         update_necessary, update_uuid = self.is_update_necessary()
         if update_necessary:
             logger.info('Update is possible, will download.')
@@ -126,15 +125,14 @@ class DatasetUpdater:
         else:
             self.new_version_message = 'No new OBD releases found - no update necessary.'
             logger.info(self.new_version_message)
-
         return (self.new_version_message,
                 self.new_version_name,
                 self.new_version_description,
                 self.new_version_uuid,
                 self.new_version_datetime)
 
-    def write_downloaded_version_to_json(self):
-
+    def write_downloaded_version_details_to_json(self):
+        """Writes details of the downloaded Ökobaudat file to a json, so a history of downloaded versions is available"""
         output_dir = os.path.join('app/data/OBD')
         output_path = os.path.join(output_dir, 'oekobaudat_versions_downloaded.json')
 
