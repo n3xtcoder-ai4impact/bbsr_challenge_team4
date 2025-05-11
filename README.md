@@ -33,4 +33,4 @@ The API can be reached at 127.0.0.1:8000/api and has several endpoints:
 - /materials/{uuid} let's you query specific material UUIDs and returns a matching generic material UUID
 - /update looks for updates of the Ökobaudat dataset
 - /dataset_info returns the used dataset and when it was updated
-API docs are at 127.0.0.1:8000/docs
+- API docs are at 127.0.0.1:8000/docs
