@@ -16,6 +16,9 @@ from loguru import logger
 # generic:
 # ed391263-0e6d-43dd-ad3e-43607545f281
 
+# todo: Re-read DataLoader after update
+
+# todo: make file for config parameters
 # todo: show log on /log (?)
 # todo: show "used dataset version" and "last updated at" on input html
 # todo: change old logging to loguru

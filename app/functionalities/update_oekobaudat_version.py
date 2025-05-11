@@ -4,7 +4,9 @@ import json
 from datetime import datetime
 from loguru import logger
 from typing import Dict, Optional, Tuple
-from app.functionalities.helper_functions import read_json_file, overwrite_smaller_file, write_csv_from_response
+from app.functionalities.helper_functions import read_json_file, write_csv_from_response
+from app.model.RouterModels import DatasetVersion, UpdateResponse
+from app.functionalities.helper_functions import save_dataset_version
 
 
 class DatasetUpdater:
@@ -18,7 +20,7 @@ class DatasetUpdater:
         self.new_version_name = None
         self.new_version_description = None
         self.new_version_message = 'no message'
-        self.new_version_datetime = None
+        self.new_version_datetime = datetime.today().strftime("%Y-%m-%d %H:%M")
 
 
     def get_available_versions(self)->Dict:
@@ -83,13 +85,13 @@ class DatasetUpdater:
         if not response.status_code == 200:
             logger.error(f'Update failed, response status_code:{response.status_code}. Could not update Oekobaudat data to release XXX with uuid YYY')
         else:
-            self.response_content_handler(response)
+            self.handle_new_version_response(response)
             self.write_downloaded_version_details_to_json()
 
         logger.info(f'Update process completed')
 
 
-    def response_content_handler(self, response):
+    def handle_new_version_response(self, response):
         """Manages where to put the content of a downloaded file, whether to overwrite existing files, etc"""
         output_dir = os.path.join('app/data/OBD')
         os.makedirs(output_dir, exist_ok=True)
@@ -99,7 +101,7 @@ class DatasetUpdater:
             logger.info(f'Downloaded file "{self.new_version_name}" already exists.')
             output_path_temp = os.path.join(output_dir, 'obd_temp.csv')
             write_csv_from_response(response, output_path=output_path_temp)
-            if overwrite_smaller_file(new_file=output_path_temp, old_file=output_path):
+            if self.overwrite_smaller_file(new_file=output_path_temp, old_file=output_path):
                 logger.success(
                     f'Updated existing Oekobaudat file {self.new_version_name} with UUID {self.new_version_uuid} to a more recent version')
                 self.new_version_message = 'Updated the existing file to a more recent version'
@@ -108,6 +110,16 @@ class DatasetUpdater:
             write_csv_from_response(response, output_path=output_path)
             logger.success(f'Downloaded new Oekobaudat file {self.new_version_name} with UUID {self.new_version_uuid}')
             self.new_version_message = 'Downloaded a new Oekobaudat file'
+
+        # Save update details
+        current_dataset_version = DatasetVersion(name=self.new_version_name,
+                                                 description=self.new_version_description,
+                                                 updated=self.new_version_datetime,
+                                                 uuid=self.new_version_uuid
+                                                 )
+
+        save_dataset_version(dataset=current_dataset_version,
+                             filepath='app/data/OBD/current_dataset_version.json')
 
 
     def contact_api(self, url_tail: str = '', params=None, headers=None):
@@ -130,18 +142,17 @@ class DatasetUpdater:
         else:
             self.new_version_message = 'No new OBD releases found - no update necessary.'
             logger.info(self.new_version_message)
-        return (self.new_version_message,
-                self.new_version_name,
-                self.new_version_description,
-                self.new_version_uuid,
-                self.new_version_datetime)
+
+        return UpdateResponse(message=self.new_version_message,
+                           name=self.new_version_name,
+                           description=self.new_version_description,
+                           uuid=self.new_version_uuid)
 
     def write_downloaded_version_details_to_json(self):
         """Writes details of the downloaded Ökobaudat file to a json, so a history of downloaded versions is available"""
         output_dir = os.path.join('app/data/OBD')
         output_path = os.path.join(output_dir, 'oekobaudat_versions_downloaded.json')
 
-        self.new_version_datetime = datetime.today().strftime("%Y-%m-%d %H:%M")
         new_version_data = {self.new_version_uuid: [self.new_version_description, self.new_version_name,
                                                     f'{self.new_version_datetime}']}
 
@@ -157,3 +168,28 @@ class DatasetUpdater:
         existing_data.update(new_version_data)
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(existing_data, f, ensure_ascii=False, indent=4)
+
+    def overwrite_smaller_file(self, new_file: str, old_file: str):
+        """Checks if a csv file already exists. If it does, the number of rows in the existing and
+        the new file are compared. The old file gets replaced if it is shorter."""
+
+        overwritten = False
+
+        with open(old_file, 'r', encoding='latin-1') as f:
+            existing_file_lines = sum(1 for _ in f)
+
+        with open(new_file, 'r', encoding='latin-1') as f:
+            new_file_lines = sum(1 for _ in f)
+
+        if new_file_lines > existing_file_lines:
+            os.replace(new_file, old_file)
+            self.new_version_message = f'Overwriting existing file "{old_file}" because it was shorter than the downloaded file.'
+            logger.info(self.new_version_message)
+            overwritten = True
+        else:
+            self.new_version_message = f'Keeping existing file "{old_file}" because it is longer than or equal to the downloaded file.'
+            logger.info(self.new_version_message)
+            if os.path.exists(old_file):
+                os.remove(new_file)
+
+        return overwritten

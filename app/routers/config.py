@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Request, Form
 from fastapi.templating import Jinja2Templates
 from app.configuration.getConfig import Config
-from app.functionalities.helper_functions import save_dataset_version
 from app.functionalities.uuid_handler import uuid_input_handler
 from app.functionalities.update_oekobaudat_version import DatasetUpdater
 from app.functionalities.reembedding import ReEmbedder
@@ -39,26 +38,14 @@ async def run_api_update()->UpdateResponse:
 
     # Update
     updater = DatasetUpdater()
-    message, name, description, uuid, datetime = updater.perform_update()
-
-    current_dataset_version = DatasetVersion(name = name,
-                                             description = description,
-                                             updated = datetime,
-                                             uuid = uuid
-                                             )
-
-    save_dataset_version(dataset=current_dataset_version,
-                              filepath='app/data/OBD/current_dataset_version.json')
+    update_response = updater.perform_update()
 
     #Re-embed
     reembedder = ReEmbedder()
     reembedder.run_reembedding()
     reembedder.create_best_matches_csv()
 
-    return UpdateResponse(message=message,
-                          name=name,
-                          description=description,
-                          uuid=uuid)
+    return update_response
 
 
 
