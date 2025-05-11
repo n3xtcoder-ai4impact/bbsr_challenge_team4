@@ -8,11 +8,8 @@ that were included in the app, but their code was not implemented as a functiona
 like to retrace their steps in the future, their code can be found in /sentence-tranformer-code.
 """
 
-# todo: Re-read DataLoader right after update
-# todo: make extra file for config parameters
 # todo: show log on endpoint /log
 # todo: change old logging to loguru
-
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
