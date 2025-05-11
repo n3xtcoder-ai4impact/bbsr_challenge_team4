@@ -1,3 +1,19 @@
+"""
+This app was built based on a fantastic FastAPI-Docker template that can be found here:
+https://github.com/Salfiii/fastapi-template. Many thanks got out to its maintainer!
+
+---------------------- BBSR challenge - Team 4 info ------------------------------------
+The app was built by one person and anything connected to sentence transfomers by two others. They did provide results
+that were included in the app, but their code was not implemented as a functional part of it. In case anyone would
+like to retrace their steps in the future, their code can be found in /sentence-tranformer-code.
+"""
+
+# todo: Re-read DataLoader right after update
+# todo: make extra file for config parameters
+# todo: show log on endpoint /log
+# todo: change old logging to loguru
+
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
@@ -9,19 +25,6 @@ from app.functionalities.update_oekobaudat_version import DatasetUpdater
 from app.functionalities.data_loader import DataLoader
 from loguru import logger
 
-# todo: remove before deployment
-
-# specific dataset:
-# 906a624c-2360-4a27-8493-c10fe7d398b2
-# generic:
-# ed391263-0e6d-43dd-ad3e-43607545f281
-
-# todo: Re-read DataLoader after update
-
-# todo: make file for config parameters
-# todo: show log on /log (?)
-# todo: show "used dataset version" and "last updated at" on input html
-# todo: change old logging to loguru
 
 configuration = Config()
 
