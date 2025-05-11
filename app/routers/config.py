@@ -4,6 +4,7 @@ from app.configuration.getConfig import Config
 from app.functionalities.helper_functions import save_dataset_version
 from app.functionalities.uuid_handler import uuid_input_handler
 from app.functionalities.update_oekobaudat_version import DatasetUpdater
+from app.functionalities.reembedding import ReEmbedder
 from app.model.RouterModels import UuidsOut, DatasetVersion, UpdateResponse
 from loguru import logger
 
@@ -35,6 +36,8 @@ async def show_dataset_information(request: Request)->DatasetVersion:
 @router.get("/api/update", response_model=UpdateResponse)
 async def run_api_update()->UpdateResponse:
     """Updates the Ökobaudat dataset"""
+
+    # Update
     updater = DatasetUpdater()
     message, name, description, uuid, datetime = updater.perform_update()
 
@@ -46,6 +49,11 @@ async def run_api_update()->UpdateResponse:
 
     save_dataset_version(dataset=current_dataset_version,
                               filepath='app/data/OBD/current_dataset_version.json')
+
+    #Re-embed
+    reembedder = ReEmbedder()
+    reembedder.run_reembedding()
+    reembedder.create_best_matches_csv()
 
     return UpdateResponse(message=message,
                           name=name,
@@ -77,6 +85,11 @@ def form_post(request: Request, uuid_input: str = Form(None), update: bool = For
         updater = DatasetUpdater()
         updater.perform_update()
         result = "Update process completed successfully"
+
+        # Re-embed
+        reembedder = ReEmbedder()
+        reembedder.run_reembedding()
+        reembedder.create_best_matches_csv()
         return templates.TemplateResponse('input.html',
                                           context={'request': request, 'result': result})
 
@@ -112,15 +125,6 @@ def form_post(request: Request, uuid_input: str = Form(None), update: bool = For
                                                                  "<br>".join([f'{i + 1}: {uuid}' for i, uuid in enumerate(uuids_out)])
                                                        }
                                               )
-
-# todo: remove manual update endpoint. Add Re-embedding dummy to update locations.
-@router.get('/update')
-def run_manual_update(request:Request):
-    updater = DatasetUpdater()
-    updater.perform_update()
-    result = 'Update process completed'
-    logger.info('Update process completed')
-    return result
 
 
 @router.get("/config/", tags=["config"])

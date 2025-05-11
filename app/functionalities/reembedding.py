@@ -1,12 +1,14 @@
 """This is the place to put re-embedding functions for after an update of the Ökobaudat data set was made.
 Unfortunately, it could not be implemented before the project was over."""
 
-class ReEmbedder:
+import pandas as pd
+
+class ReEmbedder():
+    """Re-embeds available datasets, usually after an update has been made"""
 
     def __init__(self):
+        #self.obd_data: pd.DataFrame
         pass
-
-
 
 
     def run_reembedding(self):
