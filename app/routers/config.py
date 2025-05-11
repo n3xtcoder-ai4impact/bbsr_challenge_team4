@@ -4,6 +4,7 @@ from app.configuration.getConfig import Config
 from app.functionalities.uuid_handler import uuid_input_handler
 from app.functionalities.update_oekobaudat_version import DatasetUpdater
 from app.functionalities.reembedding import ReEmbedder
+from app.functionalities.data_loader import DataLoader
 from app.model.RouterModels import UuidsOut, DatasetVersion, UpdateResponse
 from loguru import logger
 
@@ -32,21 +33,12 @@ async def show_dataset_information(request: Request)->DatasetVersion:
     """Return information about the Ökobaudat dataset currently in use"""
     return request.app.state.data.current_dataset_version
 
+
 @router.get("/api/update", response_model=UpdateResponse)
-async def run_api_update()->UpdateResponse:
+async def run_api_update(request: Request)->UpdateResponse:
     """Updates the Ökobaudat dataset"""
-
-    # Update
-    updater = DatasetUpdater()
-    update_response = updater.perform_update()
-
-    #Re-embed
-    reembedder = ReEmbedder()
-    reembedder.run_reembedding()
-    reembedder.create_best_matches_csv()
-
+    update_response = update_reload_reembed(request=request)
     return update_response
-
 
 
 @router.get('/')
@@ -54,10 +46,12 @@ def read_form(request: Request):
     return templates.TemplateResponse('index.html',
                                       context={'request': request, 'result': 'none'})
 
+
 @router.get('/index')
 def read_form(request: Request):
     return templates.TemplateResponse('index.html',
                                       context={'request': request, 'result': 'none'})
+
 
 @router.get("/input")
 def form_post(request: Request):
@@ -65,18 +59,14 @@ def form_post(request: Request):
     return templates.TemplateResponse('input.html',
                                       context={'request': request, 'result': result})
 
+
 @router.post("/input")
 def form_post(request: Request, uuid_input: str = Form(None), update: bool = Form(False)):
     """Handles all requests from the /input page: UUID queries and update button clicks"""
     if update:
-        updater = DatasetUpdater()
-        updater.perform_update()
+        update_reload_reembed(request=request)
         result = "Update process completed successfully"
 
-        # Re-embed
-        reembedder = ReEmbedder()
-        reembedder.run_reembedding()
-        reembedder.create_best_matches_csv()
         return templates.TemplateResponse('input.html',
                                           context={'request': request, 'result': result})
 
@@ -143,3 +133,21 @@ async def health() -> dict:
     }
 
     return status_dict
+
+
+def update_reload_reembed(request:Request):
+    """Nomen est omen: updates dataset, reloads app.state.data so that new data is immediately available in the app,
+     then re-embeds the material matchings and creates updated match files."""
+    # Update
+    updater = DatasetUpdater()
+    update_response = updater.perform_update()
+
+    # Re-load data
+    request.app.state.data = DataLoader()
+
+    # Re-embed
+    reembedder = ReEmbedder()
+    reembedder.run_reembedding()
+    reembedder.create_best_matches_csv()
+
+    return update_response
