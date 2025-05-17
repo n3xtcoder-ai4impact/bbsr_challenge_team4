@@ -1,0 +1,92 @@
+pip install pandas scikit-learn sentence-transformers
+import pandas as pd
+import numpy as np
+
+from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer, util
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+path = "OBD_2024_I.csv"
+generic_2024 = pd.read_csv(path, delimiter=';', encoding='ISO-8859-1')
+generic_2024.head(1)
+path = "tBaustoff_with_OBD_mapping.csv"
+specific_df = pd.read_csv(path)
+specific_df.head(1)
+generic_clean = generic_2024[[
+    "UUID", "Name (de)", "Referenzjahr", "Kategorie (original)", "Typ", "Rohdichte (kg/m3)"
+]].rename(columns={
+    "UUID": "Generic UUID",
+    "Name (de)": "Generic Name",
+    "Referenzjahr": "Generic Year",
+    "Kategorie (original)": "Generic Category",
+    "Typ": "Generic Type",
+    "Rohdichte (kg/m3)": "Generic Density"
+}).dropna(subset=["Generic Name"])
+specific_clean = specific_df[[
+    'oekobaudatProcessUuid', 'productName', 'tBaustoffVersion', 'eolCategoryName', 'technologyFactor'
+]].rename(columns={
+    "oekobaudatProcessUuid": "Specific UUID",
+    "productName": "Specific Name",
+    "tBaustoffVersion": "Version",
+    "eolCategoryName": "Specific Category",
+    "technologyFactor": "Specific Density"
+}).dropna(subset=["Specific Name"])
+
+generic_clean = generic_clean.reset_index(drop=True)
+specific_clean = specific_clean.reset_index(drop=True)
+
+model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+
+generic_embeddings = model.encode(generic_clean["Generic Name"].astype(str).tolist(), convert_to_tensor=False)
+specific_embeddings = model.encode(specific_clean["Specific Name"].astype(str).tolist(), convert_to_tensor=False)
+
+sim_matrix = cosine_similarity(specific_embeddings, generic_embeddings)
+
+matches = []
+
+for i, spec_row in specific_clean.iterrows():
+    spec_category = spec_row["Specific Category"]
+    try:
+        spec_density = float(spec_row["Specific Density"])
+    except:
+        spec_density = None
+
+    scores = []
+    for j, gen_row in generic_clean.iterrows():
+        name_score = sim_matrix[i][j]
+        category_score = 1.0 if spec_category == gen_row["Generic Category"] else 0.0
+
+        try:
+            gen_density = float(gen_row["Generic Density"])
+            if spec_density is not None:
+                density_diff = abs(spec_density - gen_density)
+                density_score = max(0.0, 1 - density_diff / 2000)
+            else:
+                density_score = 0.5
+        except:
+            density_score = 0.5
+
+        final_score = 0.6 * name_score + 0.25 * category_score + 0.15 * density_score
+
+        scores.append({
+            "Specific UUID": spec_row["Specific UUID"],
+            "Specific Name": spec_row["Specific Name"],
+            "Generic UUID": gen_row["Generic UUID"],
+            "Generic Name": gen_row["Generic Name"],
+            "Final Score": round(final_score, 4),
+            "Rank": None
+        })
+
+    
+    top_3 = sorted(scores, key=lambda x: x["Final Score"], reverse=True)[:3]
+    for rank, match in enumerate(top_3, start=1):
+        match["Rank"] = rank
+        matches.append(match)
+
+result_df = pd.DataFrame(matches)[[
+    "Specific UUID", "Specific Name",
+    "Generic UUID", "Generic Name",
+    "Final Score", "Rank"
+]]
+result_df.to_csv("Top3_Multilingual_Matches.csv", index=False)
+print("Top3_Multilingual_Matches saved to 'Top3_Multilingual_Matches.csv'")
