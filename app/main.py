@@ -27,8 +27,10 @@ configuration = Config()
 
 API_ID = configuration.API_ID
 API_VERSION = configuration.API_VERSION
-UPDATE_HOUR = int(configuration.configuration_dict.get('UPDATE', {}).get('HOUR', 3))
-UPDATE_MINUTE = int(configuration.configuration_dict.get('UPDATE', {}).get('MINUTE', 19))
+UPDATE_HOUR = int(configuration.configuration_dict.get("UPDATE", {}).get("HOUR", 3))
+UPDATE_MINUTE = int(
+    configuration.configuration_dict.get("UPDATE", {}).get("MINUTE", 19)
+)
 
 
 def run_daily_update(app: FastAPI):
@@ -49,11 +51,10 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     yield
     scheduler.shutdown()
-    logger.info('App shutdown successful')
+    logger.info("App shutdown successful")
 
 
-app = FastAPI(title="BSSR Challenge Team 4",
-              lifespan=lifespan)
+app = FastAPI(title="BSSR Challenge Team 4", lifespan=lifespan)
 
 app.mount("/app/static", StaticFiles(directory="app/static"), name="static")
 
@@ -63,5 +64,6 @@ app.include_router(config.router)
 # needed to start the application locally for development/debugging purpose. Will never be called on K8s.
 if configuration.is_local:
     import uvicorn
-    if __name__ == '__main__':
-        uvicorn.run(app, host='127.0.0.1', port=8000)
+
+    if __name__ == "__main__":
+        uvicorn.run(app, host="127.0.0.1", port=8000)

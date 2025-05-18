@@ -45,7 +45,9 @@ class ConfigparserWrapper:
 
         return sections_dict
 
-    def get_dict_anon(self, exclude: list = ["pwd", "password", "secret"], wild_change: bool = True) -> dict:
+    def get_dict_anon(
+        self, exclude: list = ["pwd", "password", "secret"], wild_change: bool = True
+    ) -> dict:
         """
         :param exclude: (list[str], optional)
             List of possible values to exclude from the config-file.
@@ -62,7 +64,7 @@ class ConfigparserWrapper:
             strip=exclude,
             hard_delete=False,
             overwrite_value=None,
-            wild_change=wild_change
+            wild_change=wild_change,
         ).perform_anonymization(conf_dict)
 
         return anon_conf

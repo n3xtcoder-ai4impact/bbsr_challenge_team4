@@ -17,8 +17,20 @@ class Log:
     uuid: str = None
     trace_id: str = None
 
-    def __init__(self, timestamp: datetime, api_id: int, level: int, status_code: int, message: str,
-                 traceback: str, path: str, user: str, uuid: str, trace_id: str, treat_all_args_as_string: bool = False):
+    def __init__(
+        self,
+        timestamp: datetime,
+        api_id: int,
+        level: int,
+        status_code: int,
+        message: str,
+        traceback: str,
+        path: str,
+        user: str,
+        uuid: str,
+        trace_id: str,
+        treat_all_args_as_string: bool = False,
+    ):
         """
 
         :param timestamp:

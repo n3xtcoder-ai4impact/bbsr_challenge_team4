@@ -12,8 +12,13 @@ Anon Helper/Callback methods to use in the change argument of the Anon-Clas
 """
 
 
-def ch_postal_code(postal_code: str, pc_len: int = 5, len_check: bool = True, change_last_n: int = 1,
-                   change_with: str = "0") -> str:
+def ch_postal_code(
+    postal_code: str,
+    pc_len: int = 5,
+    len_check: bool = True,
+    change_last_n: int = 1,
+    change_with: str = "0",
+) -> str:
     """
     Change helper/callback function to use in the change argument of the Anon-Class.
 
@@ -41,21 +46,37 @@ def ch_postal_code(postal_code: str, pc_len: int = 5, len_check: bool = True, ch
         try:
             ret = postal_code[:-change_last_n]
             # duplicate the "change_with" string * "change_last_n"-times to fill up the cut off characters
-            ret = ret + ''.join(change_with * change_last_n)
+            ret = ret + "".join(change_with * change_last_n)
         except:
-            warnings.warn("An error occurred while processing the postalcode-string '" + postal_code +
-                          "'. Please review the given parameters in combination with the given string and try again." +
-                          "The initially given string will be returned")
+            warnings.warn(
+                "An error occurred while processing the postalcode-string '"
+                + postal_code
+                + "'. Please review the given parameters in combination with the given string and try again."
+                + "The initially given string will be returned"
+            )
     else:
-        warnings.warn("The length check (len == " + str(pc_len) + ")  for the postalcode-string '" + postal_code +
-                      "'. was not successful. The initially given string will be returned")
+        warnings.warn(
+            "The length check (len == "
+            + str(pc_len)
+            + ")  for the postalcode-string '"
+            + postal_code
+            + "'. was not successful. The initially given string will be returned"
+        )
     return ret
 
 
-def ch_datetime(date: object, return_unix_timestamp: bool = False,
-                year_replace: int = None, month_replace: int = None, day_replace: int = None,
-                hour_replace: int = None, minute_replace: int = None, second_replace: int = None,
-                save_parse_mode: bool = True, save_parse_overwrite: str = "#ANONYMIZED_COULD_NOT_PARSE"):
+def ch_datetime(
+    date: object,
+    return_unix_timestamp: bool = False,
+    year_replace: int = None,
+    month_replace: int = None,
+    day_replace: int = None,
+    hour_replace: int = None,
+    minute_replace: int = None,
+    second_replace: int = None,
+    save_parse_mode: bool = True,
+    save_parse_overwrite: str = "#ANONYMIZED_COULD_NOT_PARSE",
+):
     """
     Parses the given date/timestamp string or unix timestamp and replaces parts of the timestamp with the specified
     replace parameters for anonymization purpose.
@@ -66,17 +87,17 @@ def ch_datetime(date: object, return_unix_timestamp: bool = False,
             through the 'dateparser'-package (https://pypi.org/project/dateparser/)
         return_unix_timestamp (bool, optional): If true, a unix timestamp, seconds since epoch (1970) is returned
             Defaults to False,
-        year_replace (int, optional): Value to replace the current year. 
+        year_replace (int, optional): Value to replace the current year.
             Has to be >= 1970 if 'return_unix_timestamp' == True, otherwise a random year is choosen between 1970:today().
-            Defaults to None 
+            Defaults to None
         month_replace (int, optional): Value to replace the current month.
-            Defaults to None, 
+            Defaults to None,
         day_replace (int, optional): Value to replace the current day.
             Defaults to None,
         hour_replace (int, optional): Value to replace the current hour.
             Defaults to None
         minute_replace (int, optional): Value to replace the current minute.
-            Defaults to None, 
+            Defaults to None,
         second_replace (int, optional): Value to replace the current second.
             Defaults to None
         save_parse_mode (bool, optional): If true and a date can not be parsed it get´s overwritten with 'save_parse_overwrite'
@@ -103,17 +124,31 @@ def ch_datetime(date: object, return_unix_timestamp: bool = False,
         year_today = datetime.date.today().year
         year_replace = randint(1970, datetime.date.today().year)
         warnings.warn(
-            "The parameter 'year_replace' can´t be smaller than 1970 for a unix timestamp." +
-            "The random year " + str(year_replace) + " was choosen between 1970 and " + str(year_today))
+            "The parameter 'year_replace' can´t be smaller than 1970 for a unix timestamp."
+            + "The random year "
+            + str(year_replace)
+            + " was choosen between 1970 and "
+            + str(year_today)
+        )
 
     def early_return():
         # if save_parse_mode is True, overwrite the date value on error, else return it without modification
         if save_parse_mode:
-            warnings.warn("The given date " + date if date else "" + " could not be parsed, the overwrite value " +
-                          save_parse_overwrite + " will be returned.")
+            warnings.warn(
+                "The given date " + date
+                if date
+                else ""
+                + " could not be parsed, the overwrite value "
+                + save_parse_overwrite
+                + " will be returned."
+            )
             ts = save_parse_overwrite
         else:
-            warnings.warn("The given date " + date if date else "" + " could not be parsed, the original value is returned.")
+            warnings.warn(
+                "The given date " + date
+                if date
+                else "" + " could not be parsed, the original value is returned."
+            )
             ts = date
         return ts
 
@@ -136,16 +171,27 @@ def ch_datetime(date: object, return_unix_timestamp: bool = False,
     second_replace = ts.second if second_replace is None else second_replace
 
     # replace the given parts
-    ts = ts.replace(year=year_replace, month=month_replace, day=day_replace,
-                    hour=hour_replace, minute=minute_replace, second=second_replace)
+    ts = ts.replace(
+        year=year_replace,
+        month=month_replace,
+        day=day_replace,
+        hour=hour_replace,
+        minute=minute_replace,
+        second=second_replace,
+    )
     # Return a datetime-object or int(unix timestamp in millisenconds since epoch)
     ret = ts if not return_unix_timestamp else _unix_timestamp_epoch(ts)
 
     return ret
 
 
-def ch_ipv4(ip: str, ip_check: bool = True, change_parts: list = [3], assign_rand_num: bool = True,
-            change_with: str = "0") -> str:
+def ch_ipv4(
+    ip: str,
+    ip_check: bool = True,
+    change_parts: list = [3],
+    assign_rand_num: bool = True,
+    change_with: str = "0",
+) -> str:
     """
     Replaces parts - specified in "change_parts" - of an ip-address with the given "change_with" value
     :param ip: (str) ip adresse to parse/anonymize.
@@ -172,7 +218,11 @@ def ch_ipv4(ip: str, ip_check: bool = True, change_parts: list = [3], assign_ran
             # try to parse it
             ipaddress.ip_address(ip)
         except ValueError as ve:
-            warnings.warn("The given ip adresse '" + ip if ip else "" + "' is not an valid ip. The original value will be returned")
+            warnings.warn(
+                "The given ip adresse '" + ip
+                if ip
+                else "" + "' is not an valid ip. The original value will be returned"
+            )
             return ip
 
     ip_list: list = ip.split(".")
@@ -189,10 +239,20 @@ def ch_ipv4(ip: str, ip_check: bool = True, change_parts: list = [3], assign_ran
             try:
                 ip_list[part] = replacement
             except Exception as e:
-                warnings.warn("The part '" + part + "' of the given ip '" + ip +
-                              "' could not be replaced. Error: " + str(e))
+                warnings.warn(
+                    "The part '"
+                    + part
+                    + "' of the given ip '"
+                    + ip
+                    + "' could not be replaced. Error: "
+                    + str(e)
+                )
         else:
-            warnings.warn("The specified part " + str(part) + " is not valid. Valid are values between 0 - 3.")
+            warnings.warn(
+                "The specified part "
+                + str(part)
+                + " is not valid. Valid are values between 0 - 3."
+            )
 
     # concat the list of integers back together to the anon ip string
     ret = ".".join(str(x) for x in ip_list)
@@ -214,18 +274,31 @@ def ch_iban(iban: str, overwrite_acccount: str = "0123456789") -> str:
     """
     # check the provided overwrite account
     if len(overwrite_acccount) != 10:
-        warnings.warn("The provided overwrite_account should be of length 10 but is: " + str(len(overwrite_acccount)))
+        warnings.warn(
+            "The provided overwrite_account should be of length 10 but is: "
+            + str(len(overwrite_acccount))
+        )
     if not overwrite_acccount.isdigit():
-        warnings.warn("The provided overwrite_account should only consist of digits, but is: " + overwrite_acccount)
+        warnings.warn(
+            "The provided overwrite_account should only consist of digits, but is: "
+            + overwrite_acccount
+        )
 
     # check if it´s an valid iban
     try:
         _iban = IBAN(iban)
     except ValueError as ve:
-        warnings.warn("The iban '" + iban + "' is not valid. The original value will be returned.")
+        warnings.warn(
+            "The iban '" + iban + "' is not valid. The original value will be returned."
+        )
         return iban
     # bring together the parts of the iban
-    anon_iban = _iban.country_code + _iban.checksum_digits + _iban.bank_code + overwrite_acccount
+    anon_iban = (
+        _iban.country_code
+        + _iban.checksum_digits
+        + _iban.bank_code
+        + overwrite_acccount
+    )
     return anon_iban
 
 
@@ -241,7 +314,11 @@ def ch_email(email: str, overwrite_local_part: str = "anonymized") -> str:
     try:
         valid_email = validate_email(email)
     except EmailNotValidError as e:
-        warnings.warn("The provided e-mail '" + email + "' is not valid. The original value will be returned.")
+        warnings.warn(
+            "The provided e-mail '"
+            + email
+            + "' is not valid. The original value will be returned."
+        )
         return email
 
     anon_email = overwrite_local_part + "@" + valid_email["domain"]

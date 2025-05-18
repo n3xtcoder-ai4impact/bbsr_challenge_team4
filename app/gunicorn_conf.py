@@ -47,6 +47,6 @@ log_data = {
     "port": port,
     "timeout": timeout,
     "worker_class": worker_class,
-    "keepalive": keepalive
+    "keepalive": keepalive,
 }
 print(json.dumps(log_data))

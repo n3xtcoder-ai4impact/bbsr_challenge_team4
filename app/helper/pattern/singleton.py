@@ -4,6 +4,7 @@ class Singleton(type):
     Only one instance of the singleton class can exist
     https://stackoverflow.com/questions/29697870/how-to-always-use-the-same-instance-of-a-class-in-python
     """
+
     def __init__(self, *args, **kwargs):
         """
 

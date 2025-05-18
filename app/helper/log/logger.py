@@ -30,12 +30,20 @@ class Logger:
         INFO = 2
         DEBUG = 3
 
-    def __init__(self, api_id: int, sink: SINK = SINK.STDOUT, uid: str = None, pwd: str = None, mode: MODE = MODE.INFO,
-                 file_path: str = "./log.txt",
-                 mongodb_url: str = "mongodb://{UID}:{PWD}@{HOST}/?authSource=database",
-                 mongodb_db: str = None, mongodb_collection: str = None, mongodb_host: str = None,
-                 treat_all_args_as_string: bool = False
-                 ):
+    def __init__(
+        self,
+        api_id: int,
+        sink: SINK = SINK.STDOUT,
+        uid: str = None,
+        pwd: str = None,
+        mode: MODE = MODE.INFO,
+        file_path: str = "./log.txt",
+        mongodb_url: str = "mongodb://{UID}:{PWD}@{HOST}/?authSource=database",
+        mongodb_db: str = None,
+        mongodb_collection: str = None,
+        mongodb_host: str = None,
+        treat_all_args_as_string: bool = False,
+    ):
         """
         APIKEY auth.-provider for python webservices
         :param api_id: (int) API Identificator
@@ -60,7 +68,11 @@ class Logger:
             self.file_handle = open(file_path, "a+")
         if sink == self.SINK.MONGODB:
             if uid and pwd and mongodb_host:
-                self.__mongodb_url = mongodb_url.replace("{UID}", uid).replace("{PWD}", pwd).replace("{URL}", mongodb_host)
+                self.__mongodb_url = (
+                    mongodb_url.replace("{UID}", uid)
+                    .replace("{PWD}", pwd)
+                    .replace("{URL}", mongodb_host)
+                )
             else:
                 self.__mongodb_url = mongodb_url
             self.mongo_client = MongoClient(self.__mongodb_url)
@@ -75,8 +87,16 @@ class Logger:
         """
         print(*args, file=sys.stderr, **kwargs)
 
-    def log(self, level: LEVEL, status_code: int, message: str = "", path: str = "", user: str = "", uuid: str = "",
-            trace_id: str = "") -> (bool, Log):
+    def log(
+        self,
+        level: LEVEL,
+        status_code: int,
+        message: str = "",
+        path: str = "",
+        user: str = "",
+        uuid: str = "",
+        trace_id: str = "",
+    ) -> (bool, Log):
         """
         :param level: Log-Level 0 = INFO, 1 = WARNING, 99 = ERROR
         :param status_code: HTTP-Status Code
@@ -102,7 +122,7 @@ class Logger:
             user,
             uuid,
             trace_id,
-            self.treat_all_args_as_string
+            self.treat_all_args_as_string,
         )
         # STDOUT - is always used according to mode
         if level == self.LEVEL.ERROR and self.mode.value >= 0:
@@ -128,14 +148,15 @@ class Logger:
             success = self.__log_mongodb(_log)
         return success, _log
 
-
     def __log_file(self, log: Log) -> bool:
         """
         Write log to a txt file
         """
         success = False
         try:
-            self.file_handle.write(json.dumps(log.to_json_string(), indent=4, ensure_ascii=False) + "\n")
+            self.file_handle.write(
+                json.dumps(log.to_json_string(), indent=4, ensure_ascii=False) + "\n"
+            )
             success = True
         except Exception as e:
             pass
