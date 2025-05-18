@@ -1,0 +1,84 @@
+Metadata-Version: 2.4
+Name: material_mapping
+Version: 0.0.1
+Summary: A short description of the project.
+Author-email: bbsr_team4 <your@email.com>
+Keywords: machine learning,MLOps
+Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: torch==2.6.0
+Requires-Dist: typer==0.15.2
+Requires-Dist: fastapi==0.115.12
+Requires-Dist: uvicorn==0.34.2
+Requires-Dist: pandas==2.2.2
+Requires-Dist: numpy==1.26.4
+Requires-Dist: sentence_transformers==4.1.0
+Provides-Extra: dev
+Requires-Dist: invoke==2.2.0; extra == "dev"
+Requires-Dist: pre-commit==4.1.0; extra == "dev"
+Requires-Dist: pytest==8.3.4; extra == "dev"
+Requires-Dist: coverage==7.8.0; extra == "dev"
+Requires-Dist: ruff==0.11.6; extra == "dev"
+Requires-Dist: mkdocs==1.6.1; extra == "dev"
+Requires-Dist: mkdocs-material==9.6.1; extra == "dev"
+Requires-Dist: mkdocstrings-python==1.16.10; extra == "dev"
+Dynamic: license-file
+
+# material_mapping
+
+A short description of the project.
+
+## Project structure
+
+The directory structure of the project looks like this:
+```txt
+├── .github/                  # Github actions and dependabot
+│   ├── dependabot.yaml
+│   └── workflows/
+│       └── tests.yaml
+├── configs/                  # Configuration files
+├── data/                     # Data directory
+│   ├── processed
+│   └── raw
+├── dockerfiles/              # Dockerfiles
+│   ├── api.Dockerfile
+│   └── train.Dockerfile
+├── docs/                     # Documentation
+│   ├── mkdocs.yml
+│   └── source/
+│       └── index.md
+├── models/                   # Trained models
+├── notebooks/                # Jupyter notebooks
+├── reports/                  # Reports
+│   └── figures/
+├── src/                      # Source code
+│   ├── project_name/
+│   │   ├── __init__.py
+│   │   ├── api.py
+│   │   ├── data.py
+│   │   ├── evaluate.py
+│   │   ├── models.py
+│   │   ├── train.py
+│   │   └── visualize.py
+└── tests/                    # Tests
+│   ├── __init__.py
+│   ├── test_api.py
+│   ├── test_data.py
+│   └── test_model.py
+├── .gitignore
+├── .pre-commit-config.yaml
+├── LICENSE
+├── pyproject.toml            # Python project file
+├── README.md                 # Project README
+├── requirements.txt          # Project requirements
+├── requirements_dev.txt      # Development requirements
+└── tasks.py                  # Project tasks
+```
+
+
+Created using [mlops_template](https://github.com/SkafteNicki/mlops_template),
+a [cookiecutter template](https://github.com/cookiecutter/cookiecutter) for getting
+started with Machine Learning Operations (MLOps).
