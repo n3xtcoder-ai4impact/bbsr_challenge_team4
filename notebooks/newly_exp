@@ -1,0 +1,190 @@
+
+df_2024 = pd.read_csv("OBD_2024_I.csv", delimiter=';', encoding='ISO-8859-1')
+df_2023 = pd.read_csv("OBD_2023_I.csv", delimiter=';', encoding='ISO-8859-1')
+df_2020 = pd.read_csv("OBD_2020_II.csv", delimiter=';', encoding='ISO-8859-1')
+
+df_2024["OBD_Year"] = 2024
+df_2023["OBD_Year"] = 2023
+df_2020["OBD_Year"] = 2020
+combined_df = pd.concat([df_2024, df_2023, df_2020], ignore_index=True)
+
+duplicated_uuid_counts = combined_df["UUID"].value_counts()
+duplicated_uuids = duplicated_uuid_counts[duplicated_uuid_counts > 1]
+
+print(f"Number of duplicated Generic UUIDs: {len(duplicated_uuids)}")
+
+total_rows = combined_df.shape[0]
+
+unique_uuids = combined_df["UUID"].nunique()
+duplicate_rows = combined_df.duplicated(subset="UUID").sum()
+repeated_uuids = (combined_df["UUID"].value_counts() > 1).sum()
+print("UUID Duplication Analysis:")
+print(f"Total rows in combined_df: {total_rows}")
+print(f"Unique UUIDs: {unique_uuids}")
+print(f"Duplicate rows (repeats of UUIDs): {duplicate_rows}")
+print(f"UUIDs that appear more than once: {repeated_uuids}")
+
+combined_df_copy = combined_df.copy()
+
+Unique_Df = combined_df_copy.drop_duplicates(subset="UUID", keep="first")
+
+print(f"Deduplicated DataFrame created with {len(Unique_Df)} unique Generic UUIDs.")
+
+Unique_Df.head(1)
+
+Unique_Df_copy = Unique_Df
+
+columns_to_drop = [
+    'Kategorie (en)', 'Konformität', 'Laenderkennung',
+   'Gueltig bis', 'URL', 'Declaration owner',
+       'Veroeffentlicht am', 'Registrierungsnummer', 'Registrierungsstelle',
+       'UUID des Vorgängers', 'Version des Vorgängers', 'URL des Vorgängers',
+       'Bezugsgroesse', 'Bezugseinheit', 'Referenzfluss-UUID',
+       'Referenzfluss-Name', 'Schuettdichte (kg/m3)',
+       'Flaechengewicht (kg/m2)', 'Rohdichte (kg/m3)', 'Schichtdicke (m)',
+       'Ergiebigkeit (m2)', 'Laengengewicht (kg/m)', 'Stueckgewicht (kg)',
+       'Umrechungsfaktor auf 1kg', 'biogener Kohlenstoffgehalt in kg',
+       'biogener Kohlenstoffgehalt (Verpackung) in kg', 'Modul', 'Szenario',
+       'Szenariobeschreibung', 'GWP', 'ODP', 'POCP', 'AP', 'EP', 'ADPE',
+       'ADPF', 'PERE', 'PERM', 'PERT', 'PENRE', 'PENRM', 'PENRT', 'SM', 'RSF',
+       'NRSF', 'FW', 'HWD', 'NHWD', 'RWD', 'CRU', 'MFR', 'MER', 'EEE', 'EET',
+       'AP (A2)', 'GWPtotal (A2)', 'GWPbiogenic (A2)', 'GWPfossil (A2)',
+       'GWPluluc (A2)', 'ETPfw (A2)', 'PM (A2)', 'EPmarine (A2)',
+       'EPfreshwater (A2)', 'EPterrestrial (A2)', 'HTPc (A2)', 'HTPnc (A2)',
+       'IRP (A2)', 'SOP (A2)', 'ODP (A2)', 'POCP (A2)', 'ADPF (A2)',
+       'ADPE (A2)', 'WDP (A2)', 'Unnamed: 80','Unnamed: 79','Typ','Referenzjahr'
+]
+
+
+generic_uniquedf = Unique_Df_copy.drop(columns=columns_to_drop, errors="ignore")
+
+generic_uniquedf .head(1)
+
+
+mapped_generic_uuids = Tbs_df_copy["oekobaudatProcessUuid"].dropna().unique()
+all_generic_uuids = Unique_Df_copy["UUID"].dropna().unique()
+unmapped_uuids = set(all_generic_uuids) - set(mapped_generic_uuids)
+unmapped_generic_df = generic_uniquedf[generic_uniquedf["UUID"].isin(unmapped_uuids)].copy()
+
+unmapped_generic_df = unmapped_generic_df[[
+    "UUID",
+    "Version", 
+    "Name (de)", 
+    "Name (en)", 
+    "Kategorie (original)", 
+    "OBD_Year"
+]].reset_index(drop=True)
+
+print(f"Extracted {len(unmapped_generic_df)} unmapped generic UUIDs.")
+
+unmapped_generic_df.head(1)
+
+Tbs_df = pd.read_csv("tBaustoff_with_OBD_mapping.csv")
+unmapped_df =Tbs_df[Tbs_df["oekobaudatProcessUuid"].isna() | (Tbs_df["oekobaudatProcessUuid"] == '')]
+total_rows = Tbs_df.shape[0]
+unmapped_count = unmapped_df.shape[0]
+
+print(f"Total rows: {total_rows}")
+print(f"Unmapped UUIDs: {unmapped_count}")
+
+Tbs_df_copy = Tbs_df.copy()
+
+unmapped_Tbs_copy = unmapped_Tbs.copy()
+
+columns_to_drop = [
+    "productId",
+    "eolCategoryId",
+    "eolScenarioUnbuiltReal",
+    "eolScenarioUnbuiltPotential",
+    "technologyFactor",
+    "oekobaudatDatastockName",
+]
+
+
+unmapped_Tbs_cleaned = unmapped_Tbs_copy.drop(columns=columns_to_drop, errors="ignore")
+unmapped_Tbs_cleaned.head(1)
+
+unmapped_generic_df.columns
+
+mapped_generic_uuids = Tbs_df["oekobaudatProcessUuid"].dropna().unique()
+
+
+all_generic_unique = combined_df["UUID"].dropna().unique()
+
+mapped_in_obd = set(mapped_generic_uuids).intersection(set(all_generic_unique))
+
+print(f"Total Unique Generic UUIDs in OBD: {len(all_generic_unique)}")
+print(f"Generic UUIDs mapped in tBaustoff: {len(mapped_in_obd)}")
+print(f"Generic UUIDs NOT mapped: {len(all_generic_unique) - len(mapped_in_obd)}")
+
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sentence_transformers import SentenceTransformer, util
+model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+
+specific_names = unmapped_Tbs_cleaned["productName"].astype(str).tolist()
+specific_categories = unmapped_Tbs_cleaned["eolCategoryName"].astype(str).tolist()
+generic_names = unmapped_generic_df["Name (de)"].astype(str).tolist()
+generic_categories = unmapped_generic_df["Kategorie (original)"].astype(str).tolist()
+
+
+specific_name_vecs = model.encode(specific_names, convert_to_tensor=False)
+specific_cat_vecs = model.encode(specific_categories, convert_to_tensor=False)
+generic_name_vecs = model.encode(generic_names, convert_to_tensor=False)
+generic_cat_vecs = model.encode(generic_categories, convert_to_tensor=False)
+
+
+name_sim = cosine_similarity(specific_name_vecs, generic_name_vecs)
+cat_sim = cosine_similarity(specific_cat_vecs, generic_cat_vecs)
+matches = []
+
+for i, spec_row in unmapped_Tbs_cleaned.iterrows():
+    spec_uuid = spec_row["oekobaudatProcessUuid"]
+    spec_name = spec_row["productName"]
+    spec_cat = spec_row["eolCategoryName"]
+    spec_version = spec_row["tBaustoffVersion"]
+
+    best_score = -1
+    best_match = None
+
+    for j, gen_row in unmapped_generic_df.iterrows():
+        gen_name = gen_row["Name (de)"]
+        gen_cat = gen_row["Kategorie (original)"]
+        gen_year = gen_row["OBD_Year"]
+        gen_version = gen_row["Version"]
+        gen_uuid = gen_row["UUID"] 
+
+        
+        try:
+            name_score = name_sim[i][j]
+            category_score = cat_sim[i][j]
+        except:
+            name_score = 0
+            category_score = 0
+
+        final_score = 0.75 * name_score + 0.25 * category_score
+
+        if final_score > best_score:
+            best_score = final_score
+            best_match = {
+                "Specific UUID": spec_uuid,
+                "Specific Name": spec_name,
+                "Specific Category": spec_cat,
+                "TBS Version": spec_version,
+                "Generic UUID": gen_uuid,
+                "Generic Name": gen_name,
+                "Generic Category": gen_cat,
+                "Generic Version": gen_version,
+                "OBD Year": gen_year,
+                "Name Score": round(name_score, 4),
+                "Category Score": round(category_score, 4),
+                "Final Score": round(final_score, 4)
+            }
+
+    matches.append(best_match)
+matches_df = pd.DataFrame(matches)
+matches_df.to_csv("Matched_Unmapped_Specific_Generic_NameCategory.csv", index=False)
+
+print("Matching complete! Results saved to 'Matched_Unmapped_Specific_Generic_NameCategory.csv'")
