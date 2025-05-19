@@ -18,8 +18,17 @@ def embed_single(text):
 
 
 def calculate_scores(
-    specific_uuid, specific, generic, generic_name_embeddings, generic_cat_embeddings
+    specific_uuid: str, 
+    specific: pd.DataFrame, 
+    generic: pd.DataFrame, 
+    generic_name_embeddings: torch.Tensor, 
+    generic_cat_embeddings: torch.Tensor,
+    specific_name_embeddings: torch.Tensor, 
+    specific_cat_embeddings: torch.Tensor
 ) -> pd.DataFrame:
+    """
+    Calculate the scores for the specific material and the generic materials
+    """
     specific_index = specific[specific["UUID"] == specific_uuid].index
     if specific_index.empty:
         print(f"No specific material found with UUID: {specific_uuid}")
@@ -75,9 +84,12 @@ def map_materials(
     generic: pd.DataFrame,
     generic_name_embeddings: torch.Tensor,
     generic_cat_embeddings: torch.Tensor,
-    specific_name_embeddings,
-    specific_cat_embeddings,
+    specific_name_embeddings: torch.Tensor,
+    specific_cat_embeddings: torch.Tensor
 ) -> pd.DataFrame:
+    """
+    Map the specific materials to the generic materials
+    """
     specific_generic_mapping = pd.DataFrame()
     specific_generic_mapping = pd.DataFrame(
         columns=[
@@ -97,6 +109,8 @@ def map_materials(
             generic=generic,
             generic_name_embeddings=generic_name_embeddings,
             generic_cat_embeddings=generic_cat_embeddings,
+            specific_name_embeddings=specific_name_embeddings,
+            specific_cat_embeddings=specific_cat_embeddings,
         )
         if res is not None:
             for _, r in res.iterrows():
