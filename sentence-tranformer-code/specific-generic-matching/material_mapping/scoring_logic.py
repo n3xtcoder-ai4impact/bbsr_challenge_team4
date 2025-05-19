@@ -1,4 +1,5 @@
 import pandas as pd
+from sentence_transformers import util
 
 
 def name_sim(embedding1, embedding2):

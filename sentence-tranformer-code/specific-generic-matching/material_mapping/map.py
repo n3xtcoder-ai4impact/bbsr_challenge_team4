@@ -1,5 +1,5 @@
 import pandas as pd
-from util import name_sim, cat_sim, year_bucket_match, unit_match
+from scoring_logic import name_sim, cat_sim, year_bucket_match, unit_match
 import typer
 from pathlib import Path
 import torch
@@ -7,11 +7,6 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers import util
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
-
-
-def embed_texts(texts):
-    return model.encode(texts, convert_to_tensor=True)
-
 
 def embed_single(text):
     return model.encode(text, convert_to_tensor=True)
