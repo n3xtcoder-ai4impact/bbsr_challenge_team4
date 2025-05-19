@@ -1,14 +1,4 @@
 import pandas as pd
-import torch
-from sentence_transformers import util
-
-
-def name_sim(embedding1: torch.Tensor, embedding2: torch.Tensor) -> float:
-    return util.cos_sim(embedding1, embedding2).item()
-
-
-def cat_sim(embedding1: torch.Tensor, embedding2: torch.Tensor) -> float:
-    return util.cos_sim(embedding1, embedding2).item()
 
 
 def year_bucket_match(year1: int, year2: int) -> int:
