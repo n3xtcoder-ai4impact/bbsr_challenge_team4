@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scoring_logic import  unit_match, year_bucket_match
+from scoring_logic import unit_match, year_bucket_match
 from sentence_transformers import SentenceTransformer, util
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
