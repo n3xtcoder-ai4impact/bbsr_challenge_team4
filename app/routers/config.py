@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Request, Form
+from fastapi import APIRouter, Form, Request
 from fastapi.templating import Jinja2Templates
-from app.configuration.getConfig import Config
-from app.functionalities.uuid_handler import uuid_input_handler
-from app.functionalities.update_oekobaudat_version import DatasetUpdater
-from app.functionalities.reembedding import ReEmbedder
-from app.functionalities.data_loader import DataLoader
-from app.model.RouterModels import UuidsOut, DatasetVersion, UpdateResponse
 from loguru import logger
+
+from app.configuration.getConfig import Config
+from app.functionalities.data_loader import DataLoader
+from app.functionalities.reembedding import ReEmbedder
+from app.functionalities.update_oekobaudat_version import DatasetUpdater
+from app.functionalities.uuid_handler import uuid_input_handler
+from app.model.RouterModels import DatasetVersion, UpdateResponse, UuidsOut
 
 templates = Jinja2Templates(directory="app/templates/")
 

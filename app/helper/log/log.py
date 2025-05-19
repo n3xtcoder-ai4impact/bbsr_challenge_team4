@@ -1,6 +1,7 @@
 import json
-from datetime import datetime
 from dataclasses import asdict
+from datetime import datetime
+
 from pydantic.dataclasses import dataclass
 
 

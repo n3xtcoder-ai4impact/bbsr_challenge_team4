@@ -11,17 +11,18 @@ like to retrace their steps in the future, their code can be found in /sentence-
 # todo: show log on endpoint /log
 # todo: change old logging to loguru
 
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-from app.configuration.getConfig import Config
-from app.routers import config
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from app.functionalities.update_oekobaudat_version import DatasetUpdater
-from app.functionalities.data_loader import DataLoader
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
+from app.configuration.getConfig import Config
+from app.functionalities.data_loader import DataLoader
+from app.functionalities.update_oekobaudat_version import DatasetUpdater
+from app.routers import config
 
 configuration = Config()
 

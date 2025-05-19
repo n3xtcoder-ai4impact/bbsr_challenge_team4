@@ -1,5 +1,6 @@
-import configparser
 import codecs
+import configparser
+
 from app.helper.anonymize.Anonymize import Anonymize
 
 

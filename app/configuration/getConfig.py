@@ -1,5 +1,6 @@
 import os
 import warnings
+
 from app.configuration.configparser.wrapper import ConfigparserWrapper as ConfigParser
 from app.helper.log.logger import Logger
 from app.helper.pattern.singleton import Singleton

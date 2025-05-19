@@ -1,6 +1,7 @@
 import pandas as pd
-from app.model.RouterModels import UuidsOut
 from loguru import logger
+
+from app.model.RouterModels import UuidsOut
 
 
 def uuid_input_handler(
