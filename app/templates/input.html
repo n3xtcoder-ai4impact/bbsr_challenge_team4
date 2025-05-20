@@ -1,33 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>CircularMatch</title>
-    <link rel="stylesheet" href="app/static/css/styles.css">
-    <link rel="icon" type="image/png" href="../static/img/team4_logo.png">
-</head>
-<body>
-    <img src="app/static/img/ai_for_impact.png" class="logo_ai">
-    <img src="app/static/img/elca_logo.png" class="logo_elca">
-    <div class="container">
-        <img src="app/static/img/team4_logo.png" class="logo_team4">
+    <link rel="stylesheet" href="app/static/css/styles.css" />
+    <link rel="icon" type="image/png" href="../static/img/team4_logo.png" />
+  </head>
+  <body>
+    <img src="app/static/img/ai_for_impact.png" class="logo_ai" />
+    <img src="app/static/img/elca_logo.png" class="logo_elca" />
+    <div class="container{% if not specific_material and not matches %} container-centered{% endif %}" style="{% if not specific_material and not matches %}min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center;{% else %}overflow-y: auto; height: 70vh;{% endif %}">
+      {% if not specific_material and not matches %}
+        <img src="app/static/img/team4_logo.png" class="logo_team4" />
         <h1>UUID Search</h1>
         <h2>Please type in your UUID from Ökobaudat:</h2>
         <form method="post">
-            <input type="text" name="uuid_input" value="{{ uuid_input }}"/>
-            <input type="submit" value="Submit" class="submit_button">
+          <div class="input-row">
+            <input type="text" name="uuid_input" value="{{ uuid_input }}" />
+            <input type="submit" value="Submit" class="submit_button" />
+          </div>
         </form>
-        <p class="result">{{ result|safe }}</p>
-        <br>
-        <form method="post">
-            <input type="hidden" name="update" value="true">
-            <button type="submit">Update Ökobaudat data</button>
-        </form>
-        <button onclick="window.location.href='index'">Back to the Intro-Page</button>
+      {% else %}
+        <div class="result-header">
+          <img src="app/static/img/team4_logo.png" class="logo_team4_small" />
+          <span class="result-message">
+            {{ message if message else 'Found generic materials that match input uuid' }}
+          </span>
+          {% if specific_material or matches %}
+          <a href="/input" class="submit_button new-search-btn">New Search</a>
+          {% endif %}
+        </div>
+      {% endif %}
 
+
+      {% if specific_material %}
+      <div class="material-section" style="text-align: left; margin-top: 1rem;">
+        <h2>Your Specific Material</h2>
+        <div class="material-card">
+          <p style="margin-bottom: 0; font-size: 1.2rem;"><b>{{ specific_material.name }}</b></p>
+          <p style="margin-top: 0.4rem; margin-bottom: 0.2rem"><b>UUID:</b> {{ specific_material.uuid }}</p>
+          {% if specific_material.attributes.Category or specific_material.attributes.Density or specific_material.attributes.Thickness %}
+          <details class="accordion">
+            <summary class="accordion-summary">
+              <span class="accordion-arrow" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 18 18" style="display:inline;vertical-align:middle" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 4.5L12 9L6 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="accordion-more">more</span>
+            </summary>
+            <ul class="accordion-content" style="margin-bottom: 0">
+              {% if specific_material.attributes.Category %}
+              <li class="accordion-detail">
+                <b>Category:</b> {{ specific_material.attributes.Category }}
+              </li>
+              {% endif %} {% if specific_material.attributes.Density %}
+              <li class="accordion-detail"><b>Density:</b> {{ specific_material.attributes.Density }}</li>
+              {% endif %} {% if specific_material.attributes.Thickness %}
+              <li class="accordion-detail">
+                <b>Thickness:</b> {{ specific_material.attributes.Thickness }}
+              </li>
+              {% endif %}
+            </ul>
+          </details>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %} {% if matches %}
+      <div class="matches-section">
+        <h2>Equivalent Generic Materials</h2>
+        {% for match in matches %}
+<div class="match-card responsive-match-card">
+  <div class="match-card-flex">
+    <div class="match-card-details-row">
+      <div style="flex: 1 1 0; min-width: 0;">
+        <p class="match-name"><b>{{ match.name }}</b></p>
+        <p class="match-uuid"><b>UUID:</b> {{ match.uuid }}</p>
+        {% if match.attributes.Category or match.attributes.Density or match.attributes.Thickness %}
+        <details class="accordion">
+          <summary class="accordion-summary">
+            <span class="accordion-arrow" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 18 18" style="display:inline;vertical-align:middle" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 4.5L12 9L6 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="accordion-more">more</span>
+          </summary>
+          <ul class="accordion-content" style="margin-bottom: 0">
+            {% if match.attributes.Category %}<li class="accordion-detail"><b>Category:</b> {{ match.attributes.Category }}</li>{% endif %}
+            {% if match.attributes.Density  %}<li class="accordion-detail"><b>Density:</b>  {{ match.attributes.Density  }}</li>{% endif %}
+            {% if match.attributes.Thickness%}<li class="accordion-detail"><b>Thickness:</b>{{ match.attributes.Thickness}}</li>{% endif %}
+          </ul>
+        </details>
+        {% endif %}
+      </div>
+      <div class="ring-container" style="margin-left: 18px; align-self: flex-start;">
+        {% set pct = (match.score|float * 100)|round(0) %}
+        {% set circ = 2*3.1416*34 %} {# circumference for r=34 #}
+        <svg width="80" height="80" class="progress-ring">
+          <defs>
+            <linearGradient id="ringGradient{{ loop.index }}" gradientUnits="userSpaceOnUse"
+                            x1="0" y1="0" x2="80" y2="80">
+              <stop offset="0%"   stop-color="#319c31"/>
+              <stop offset="50%"  stop-color="#32a245"/>
+              <stop offset="100%" stop-color="#3498db"/>
+            </linearGradient>
+          </defs>
+          <circle cx="40" cy="40" r="34"
+                  stroke="#e6e6e6" stroke-width="12" fill="none"
+                  transform="rotate(-90 40 40)" />
+          <circle cx="40" cy="40" r="34"
+                  stroke="url(#ringGradient{{ loop.index }})"
+                  stroke-width="12" fill="none" stroke-linecap="round"
+                  stroke-dasharray="{{ circ }}"
+                  stroke-dashoffset="{{ circ - (match.score|float * circ) }}"
+                  transform="rotate(-90 40 40)" />
+          <text x="40" y="46" text-anchor="middle"
+                font-size="18" font-weight="600" fill="#34495e">{{ pct }}%</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+      </div>
+      {% endif %}
+      <br />
+      <form method="post">
+        <input type="hidden" name="update" value="true" />
+        <button type="submit">Update Ökobaudat data</button>
+      </form>
+      <button onclick="window.location.href='index'">
+        Back to the Intro-Page
+      </button>
     </div>
     <footer>
-        <p class="footerp">This is a prototype developed by: Timothee, Gustav, Anindita, Minh, Ewa, Valentin</p>
+      <p class="footerp">This is a prototype developed by: Timothee, Gustav, Anindita, Minh, Ewa, Valentin</p>
     </footer>
-</body>
+  </body>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('details.accordion').forEach(function(details) {
+    const content = details.querySelector('.accordion-content');
+    if (!content) return;
+    if (details.open) {
+      content.style.maxHeight = content.scrollHeight + 'px';
+      content.style.opacity = 1;
+      content.style.transform = 'translateY(0)';
+    } else {
+      content.style.maxHeight = '0px';
+      content.style.opacity = 0;
+      content.style.transform = 'translateY(-12px)';
+    }
+    details.addEventListener('toggle', function() {
+      if (details.open) {
+        content.style.transition = 'none';
+        content.style.maxHeight = '0px';
+        
+        requestAnimationFrame(function() {
+          content.style.transition = '';
+          content.style.maxHeight = content.scrollHeight + 'px';
+          content.style.opacity = 1;
+          content.style.transform = 'translateY(0)';
+        });
+      } else {
+        content.style.maxHeight = '0px';
+        content.style.opacity = 0;
+        content.style.transform = 'translateY(-12px)';
+      }
+    });
+  });
+});
+</script>
 </html>

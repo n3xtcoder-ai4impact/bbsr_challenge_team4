@@ -19,16 +19,158 @@ body {
     width: 50%;
     max-width: 600px;
     text-align: center;
-    transition: all 0.3s ease;
 }
+
+.matches-section {
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.match-card {
+    margin-bottom: 20px;
+    padding: 18px;
+    box-shadow: 0 2px 10px rgba(49, 156, 49, 0.07);
+    background: #c0dddc;
+}
+
+.match-card-flex {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.match-card-details-row {
+    flex: 1 1 200px;
+    min-width: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
+}
+
+.match-name {
+    margin-bottom: 0;
+    font-size: 1.2rem;
+}
+
+.match-uuid {
+    margin-top: .4rem;
+    margin-bottom: .2rem;
+}
+
+.accordion {
+  border: none;
+  background: none;
+  margin: 0;
+  padding: 0;
+}
+
+.accordion-summary {
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+  color: #34495e;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+}
+
+.accordion-arrow {
+  display: inline-block;
+  font-size: 1.1em;
+  color: inherit;
+  margin-right: 0.3em;
+  font-family: 'Arial', monospace;
+  transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+
+.accordion[open] .accordion-arrow {
+  transform: rotate(90deg);
+}
+
+.accordion-more {
+  color: #6b7a8f;
+  opacity: 1;
+  font-size: 1em;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.accordion-detail {
+  color: #6b7a8f;
+  font-size: 1em;
+  font-weight: 400;
+  margin: 0.2em 0 0.2em 0;
+  padding: 0;
+}
+
+.accordion-arrow svg {
+  width: 18px;
+  height: 18px;
+  stroke: #6b7a8f;
+  transition: transform 1.2s ease;
+  vertical-align: middle;
+}
+
+.accordion[open] .accordion-arrow svg {
+  transform: rotate(90deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-12px);
+  overflow: hidden;
+  transition:
+    max-height 0.5s ease,
+    opacity 0.5s ease,
+    transform 0.5s cubic-bezier(0.4,0,0.2,1);
+  color: inherit;
+  padding-left: 0;
+}
+
+.accordion[open] .accordion-content {
+  max-height: 400px;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    max-height 0.5s ease,
+    opacity 0.5s ease,
+    transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+
+.accordion-content ul,
+.accordion-content li {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+
+.input-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
 input[type="text"] {
-    width: 55%; /* Adjust this value as needed */
-    /*min-width: 300px; /* Minimum width */
-    padding: 0.3rem;
+    flex: 1 1 0;
+    min-width: 180px;
+    padding: 0.6rem 1rem;
     font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+    line-height: 1.2;
 }
 
 .logo_ai {
@@ -83,7 +225,7 @@ a {
 }
 
 button {
-    margin-top: 1.8rem;
+    margin-top: 1rem;
     padding: 0.6rem 1.2rem;
     font-size: 1rem;
     border: none;
@@ -99,8 +241,8 @@ button:hover {
 }
 
 .submit_button {
-    margin-top: 0.1rem;
-    padding: 0.3rem 0.4rem;
+    margin-top: 0;
+    padding: 0.6rem 1.2rem;
     font-size: 1rem;
     border: none;
     border-radius: 4px;
@@ -108,10 +250,39 @@ button:hover {
     color: white;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .submit_button:hover {
     background-color: #2980b9;
+    text-decoration: none;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.logo_team4_small {
+    height: 48px;
+    width: auto;
+    margin: 0;
+}
+
+.result-message {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #267c2e;
+}
+
+.new-search-btn {
+    margin-left: auto;
+    min-width: 90px;
 }
 
 footer {

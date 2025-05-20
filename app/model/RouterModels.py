@@ -1,11 +1,17 @@
 from pydantic import BaseModel
 from typing import List, Union
 
+class MaterialMatchOut(BaseModel):
+    specific_material: dict
+    matches: list
+    message: str
+
 class UuidsOut(BaseModel):
     """Used for returning the response to a user inout uuid query, both on frontend and /api/materials/{uuid}"""
     uuid_in: str
-    uuids_out: Union[List[str], str] =None
+    uuids_out: Union[List[str], str] = None
     message: str
+    matches_info: Union[list, None] = None
 
 class DatasetVersion(BaseModel):
     """Used for storing the most recent dataset version and answering an API call on /api/dataset_info"""
