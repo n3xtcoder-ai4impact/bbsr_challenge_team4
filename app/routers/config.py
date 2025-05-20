@@ -3,10 +3,11 @@ from fastapi.templating import Jinja2Templates
 from app.configuration.getConfig import Config
 from app.functionalities.uuid_handler import uuid_input_handler
 from app.functionalities.update_oekobaudat_version import DatasetUpdater
-from app.functionalities.reembedding import ReEmbedder
 from app.functionalities.data_loader import DataLoader
 from app.model.RouterModels import UuidsOut, DatasetVersion, UpdateResponse
 from loguru import logger
+
+from app.functionalities.material_mapping import MaterialMapper
 
 templates = Jinja2Templates(directory="app/templates/")
 
@@ -17,6 +18,12 @@ API_ID = configuration.API_ID
 API_VERSION = configuration.API_VERSION
 
 router = APIRouter()
+
+
+def minh_tryout(request: Request):
+    mapper = MaterialMapper()
+    mapper.download_model(model_name='all-MiniLM-L6-v2')
+    #mapper.preprocess_data(obd=request.app.state.data.obd, processed_data_path='app/data/semantic_matching/preprocessed')
 
 
 @router.get('/api/materials/{uuid_input}', response_model=UuidsOut)
@@ -37,8 +44,13 @@ async def show_dataset_information(request: Request)->DatasetVersion:
 @router.get("/api/update", response_model=UpdateResponse)
 async def run_api_update(request: Request)->UpdateResponse:
     """Updates the Ökobaudat dataset"""
-    update_response = update_reload_reembed(request=request)
-    return update_response
+
+    minh_tryout(request=request)
+
+    return {'message':'yes'}
+
+    #update_response = update_reload_reembed(request=request)
+    #return update_response
 
 
 @router.get('/')
@@ -133,7 +145,6 @@ async def health() -> dict:
     }
 
     return status_dict
-
 
 def update_reload_reembed(request:Request):
     """Nomen est omen: updates dataset, reloads app.state.data so that new data is immediately available in the app,
