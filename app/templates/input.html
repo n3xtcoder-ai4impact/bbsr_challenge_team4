@@ -20,6 +20,11 @@
             <input type="submit" value="Submit" class="submit_button" />
           </div>
         </form>
+        {% if message %}
+        <div class="result-message error-message" style="margin-top:1em; color: #b22222; font-weight: bold;">
+          {{ message }}
+        </div>
+        {% endif %}
       {% else %}
         <div class="result-header">
           <img src="app/static/img/team4_logo.png" class="logo_team4_small" />

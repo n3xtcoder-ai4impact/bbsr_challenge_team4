@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 from typing import List, Union
 
+from typing import Optional, List
+
 class MaterialMatchOut(BaseModel):
-    specific_material: dict
-    matches: list
+    specific_material: Optional[dict] = None
+    matches: Optional[List[dict]] = None
     message: str
 
 class UuidsOut(BaseModel):
