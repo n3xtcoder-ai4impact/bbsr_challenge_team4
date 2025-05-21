@@ -22,8 +22,7 @@ router = APIRouter()
 
 def minh_tryout(request: Request):
     mapper = MaterialMapper()
-    mapper.download_model(model_name='all-MiniLM-L6-v2')
-    #mapper.preprocess_data(obd=request.app.state.data.obd, processed_data_path='app/data/semantic_matching/preprocessed')
+    mapper.preprocess_data(df=request.app.state.data.obd, processed_data_path='app/data/semantic_matching/preprocessed')
 
 
 @router.get('/api/materials/{uuid_input}', response_model=UuidsOut)

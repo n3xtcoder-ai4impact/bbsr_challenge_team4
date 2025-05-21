@@ -6,18 +6,22 @@ import pandas as pd
 from loguru import logger
 from sentence_transformers import SentenceTransformer, util
 
-
+# weights
 WEIGHT_NAME_SIMILARITY = 0.5
 WEIGHT_CATEGORY_SIMILARITY = 0.2
 WEIGHT_YEAR_BUCKET_MATCH = 0.1
 WEIGHT_UNIT_MATCH = 0.2
 
+# model
+MODEL_DIR = 'app/data/semantic_matching/model'
+MODEL_NAME = 'all-MiniLM-L6-v2'
+
 
 class MaterialMapper:
     def __init__(self):
-        self.model_dir = 'app/data/semantic_matching/model'
-        self.model_name = 'all-MiniLM-L6-v2'
-        #self.model = SentenceTransformer(model_name_or_path=f'{self.model_dir}/{self.model_name}', local_files_only=True)
+        self.model_dir = MODEL_DIR
+        self.model_name = MODEL_NAME
+        self.model = SentenceTransformer(model_name_or_path=f'{self.model_dir}/{self.model_name}', local_files_only=True)
 
         self.specific = pd.DataFrame()
         self.generic = pd.DataFrame()
@@ -192,73 +196,56 @@ class MaterialMapper:
         )
 
 
-    def preprocess_data(self,obd: pd.DataFrame, processed_data_path: str) -> None:
+    def preprocess_data(self,df: pd.DataFrame, processed_data_path: str) -> None:
         """
         Preprocess the data from raw_data_path and save the processed data to processed_data_path
         This function assumes the OBD datasets are in the raw_data_path/OBD folder
         """
-        # Get all CSV files in the raw data OBD folder
+        # Convert numeric columns that use comma as decimal separator
+        for col in df.select_dtypes(include=["object"]).columns:
+            try:
+                df[col] = pd.to_numeric(df[col].str.replace(",", "."))
+            except:
+                pass
 
-        #obd_files = list(raw_data_path.joinpath("OBD").glob("*.csv"))
-        logger.info(f'Len OBD: {len(obd)}')
-        dfs = []
-        for file in [obd]:
-            # Read CSV with proper encoding and separator
-            #df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", low_memory=False)
-            df = obd
-            logger.info(f'Len DF: {len(df)}')
-            # Convert numeric columns that use comma as decimal separator
-            for col in df.select_dtypes(include=["object"]).columns:
-                try:
-                    df[col] = pd.to_numeric(df[col].str.replace(",", "."))
-                except:
-                    pass
-
-            # Handle Referenzjahr and Gueltig bis columns specially
-            df["Referenzjahr"] = (
-                pd.to_numeric(df["Referenzjahr"], errors="coerce")
-                .fillna(df["Referenzjahr"])
-                .astype("Int64")
-            )
-            df["Gueltig bis"] = (
-                pd.to_numeric(df["Gueltig bis"], errors="coerce")
-                .fillna(df["Gueltig bis"])
-                .astype("Int64")
-            )
-
-            dfs.append(df)
-            # Drop columns that are all NaN
-            df = df.drop(columns=df.columns[df.isna().all()])
-
-            # Split into specific and generic datasets
-            specific = df[df["Typ"] == "specific dataset"].copy()
-            generic = df[df["Typ"] == "generic dataset"].copy()
-
-            # Add dataset identifier based on filename
-            dataset_name = file.stem
-            generic["data_set"] = dataset_name
-
-            # Drop duplicates
-            specific = specific.drop_duplicates(subset=["UUID"])
-            generic = generic.drop_duplicates(subset=["UUID"])
-
-            # Fill missing text fields
-            text_cols = ["UUID", "Name (en)", "Kategorie (en)", "Bezugseinheit"]
-            specific[text_cols] = specific[text_cols].fillna(value="", downcast="infer")
-            generic[text_cols] = generic[text_cols].fillna(value="", downcast="infer")
-
-            dfs.append({"specific": specific, "generic": generic})
-
-        # Combine all specific and generic datasets
-        all_specific = pd.concat(
-            [df.get("specific") for df in dfs if isinstance(df, dict)], ignore_index=True
+        # Handle Referenzjahr and Gueltig bis columns specially
+        df["Referenzjahr"] = (
+            pd.to_numeric(df["Referenzjahr"], errors="coerce")
+            .fillna(df["Referenzjahr"])
+            .astype("Int64")
         )
-        all_generic = pd.concat(
-            [df.get("generic") for df in dfs if isinstance(df, dict)], ignore_index=True
+
+        df["Gueltig bis"] = (
+            pd.to_numeric(df["Gueltig bis"], errors="coerce")
+            .fillna(df["Gueltig bis"])
+            .astype("Int64")
         )
-        all_generic = all_generic.drop_duplicates(subset=["UUID"])
-        all_specific = all_specific.drop_duplicates(subset=["UUID"])
+
+        # Drop columns that are all NaN
+        df = df.drop(columns=df.columns[df.isna().all()])
+
+        # Split into specific and generic datasets
+        specific = df[df["Typ"] == "specific dataset"].copy()
+        generic = df[df["Typ"] == "generic dataset"].copy()
+
+        # Add dataset identifier based on filename
+        #dataset_name = file.stem
+        #generic["data_set"] = dataset_name
+
+        # Fill missing text fields
+        text_cols = ["UUID", "Name (en)", "Kategorie (en)", "Bezugseinheit"]
+
+        #deprecated:
+        #specific[text_cols] = specific[text_cols].fillna(value="", downcast="infer")
+        # generic[text_cols] = generic[text_cols].fillna(value="", downcast="infer")
+
+        specific[text_cols] = specific[text_cols].infer_objects(copy=False)
+        generic[text_cols] = generic[text_cols].infer_objects(copy=False)
+
+        all_generic = generic.drop_duplicates(subset=["UUID"])
+        all_specific = specific.drop_duplicates(subset=["UUID"])
 
         # Save processed data
-        all_specific.to_csv(f'{processed_data_path} + "specific.csv"', index=False)
-        all_generic.to_csv(f'{processed_data_path} + "generic.csv"', index=False)
+        all_specific.to_csv(f'{processed_data_path}/obd_specific.csv', index=False)
+        all_generic.to_csv(f'{processed_data_path}/obd_generic.csv', index=False)
+        logger.info('Preprocessed OBD data')
