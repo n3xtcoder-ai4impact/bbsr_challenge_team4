@@ -23,6 +23,7 @@ router = APIRouter()
 def minh_tryout(request: Request):
     mapper = MaterialMapper()
     mapper.preprocess_data(df=request.app.state.data.obd, processed_data_path='app/data/semantic_matching/preprocessed')
+    mapper.map_materials()
 
 
 @router.get('/api/materials/{uuid_input}', response_model=UuidsOut)

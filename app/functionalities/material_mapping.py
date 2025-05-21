@@ -1,8 +1,8 @@
 """This is used to re-create the list of best matches after an update of the Ökobaudat data set was made."""
 
-from pathlib import Path
 import numpy as np
 import pandas as pd
+from typing import Union
 from loguru import logger
 from sentence_transformers import SentenceTransformer, util
 
@@ -15,6 +15,9 @@ WEIGHT_UNIT_MATCH = 0.2
 # model
 MODEL_DIR = 'app/data/semantic_matching/model'
 MODEL_NAME = 'all-MiniLM-L6-v2'
+
+# data
+MAPPING_OUTPUT_PATH = 'app/data/semantic_matching/specific_generic_mapping.csv'
 
 
 class MaterialMapper:
@@ -103,14 +106,14 @@ class MaterialMapper:
             }
         )
 
-    def calculate_scores(self, specific_uuid: str) -> pd.DataFrame:
+    def calculate_scores(self, specific_uuid: str) -> Union[pd.DataFrame, None]:
         """
         Calculate scores for a specific material and return top 3 matches
         """
         specific_index = self.specific[self.specific["UUID"] == specific_uuid].index
         if specific_index.empty:
             print(f"No specific material found with UUID: {specific_uuid}")
-            return
+            return None
 
         # Retrieve the precomputed embeddings for the specific material
         spec_name_emb = self.specific_name_embeddings[specific_index[0]]
@@ -171,7 +174,7 @@ class MaterialMapper:
             return matches
         return pd.DataFrame()  # Return empty DataFrame if no matches
 
-    def map_materials(self) -> pd.DataFrame:
+    def map_materials(self):
         """
         Go through all specific materials and give matches for them
         """
@@ -191,9 +194,7 @@ class MaterialMapper:
             ignore_index=True,
         )
 
-        specific_generic_mapping.to_csv(
-            "data/result/specific_generic_mapping.csv", index=False
-        )
+        specific_generic_mapping.to_csv(MAPPING_OUTPUT_PATH, index=False)
 
 
     def preprocess_data(self,df: pd.DataFrame, processed_data_path: str) -> None:
@@ -244,6 +245,9 @@ class MaterialMapper:
 
         all_generic = generic.drop_duplicates(subset=["UUID"])
         all_specific = specific.drop_duplicates(subset=["UUID"])
+
+        self.specific = all_specific
+        self.generic = all_generic
 
         # Save processed data
         all_specific.to_csv(f'{processed_data_path}/obd_specific.csv', index=False)
