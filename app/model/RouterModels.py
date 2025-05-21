@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Union
 
-class UuidsOut(BaseModel):
+class UuidResponse(BaseModel):
     """Used for returning the response to a user inout uuid query, both on frontend and /api/materials/{uuid}"""
     uuid_in: str
     uuids_out: Union[List[str], str] =None
