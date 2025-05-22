@@ -8,6 +8,12 @@ that were included in the app, but their code was not implemented as a functiona
 like to retrace their steps in the future, their code can be found in /sentence-tranformer-code.
 """
 
+# generic: 1d0124d4-5a30-4501-a8dd-dbddbb1f8ec7
+# specific: 906a624c-2360-4a27-8493-c10fe7d398b2
+# specific 2: 770c6ffb-fbdf-4c61-810b-20bcf2f8fbd6
+# average b946d5e8-dd2f-42b2-a6cf-bbf4fd318c6d
+# representative 9139f098-d691-43ee-a8fb-07722ecaf4e6
+
 # todo: show log on endpoint /log
 # todo: change old logging to loguru
 
