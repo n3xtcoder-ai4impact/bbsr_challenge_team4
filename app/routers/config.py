@@ -96,7 +96,7 @@ def form_post(request: Request, uuid_input: str = Form(None), update: bool = For
         return templates.TemplateResponse('input.html',
                                           context={
                                               'request': request,
-                                              'result': message,
+                                              'message': message,
                                               'specific_material': specific_material,
                                               'matches': matches
                                           })
