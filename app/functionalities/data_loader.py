@@ -12,8 +12,13 @@ class DataLoader:
         self.tbaustoff = pd.read_csv('app/data/tBaustoff/tBaustoff_with_OBD_mapping.csv', encoding='utf-8',
                                      low_memory=False)
         logger.info(f'Loaded tBaustoff.csv')
-        self.specific_generic_mapping = pd.read_csv('app/data/semantic_matching/specific_generic_mapping.csv',
+
+        try:
+            self.specific_generic_mapping = pd.read_csv('app/data/semantic_matching/specific_generic_mapping.csv',
                                                     low_memory=False)
+        except:
+            logger.warning('No specific-generic-mapping file loaded')
+
         logger.info(f'Loaded specific_generic_mapping.csv')
 
         self.current_dataset_version = self.load_dataset_version('app/data/OBD/current_dataset_version.json')

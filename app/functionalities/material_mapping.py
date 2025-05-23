@@ -58,6 +58,7 @@ class MaterialMapper:
         self.specific_cat_embeddings = self.model.encode(
             self.specific["Kategorie (en)"].fillna("").tolist(), convert_to_tensor=True
         )
+        logger.info('Created embeddings')
 
 
     def year_bucket_match(self, year1: int, year2: int) -> int:
@@ -116,8 +117,10 @@ class MaterialMapper:
             return None
 
         # Retrieve the precomputed embeddings for the specific material
-        spec_name_emb = self.specific_name_embeddings[specific_index[0]]
-        spec_cat_emb = self.specific_cat_embeddings[specific_index[0]]
+        logger.info(f'Name embeddings {len(self.specific_name_embeddings)}, {specific_index.values[0]}')
+        logger.info(f'Category embeddings {len(self.specific_cat_embeddings)}, {specific_index.values[0]}')
+        spec_name_emb = self.specific_name_embeddings[specific_index.values[0]]
+        spec_cat_emb = self.specific_cat_embeddings[specific_index.values[0]]
 
         # Compute similarity in one shot
         name_similarities = (
@@ -156,7 +159,7 @@ class MaterialMapper:
         """
         Calculate the score for a specific material and return top 3 matches in a DataFrame
         """
-        print(f"Processing specific material: {row['Name (en)']}")
+        print(f"Processing specific material: {row['Name (en)']}") # DOES NOT DISPLAY A THING
         res = self.calculate_scores(specific_uuid=row["UUID"])
         if res is not None:
             # Create a DataFrame for each match with the specific material
