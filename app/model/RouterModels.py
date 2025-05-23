@@ -1,10 +1,15 @@
 from pydantic import BaseModel
-from typing import List, Union, Dict
+from typing import List, Dict, Optional
 
 class UuidResponse(BaseModel):
     """Returns the response to a user inout uuid query, both on frontend and /api/materials/{uuid}"""
     uuid_in: str
     material_info: List[Dict] = None
+    message: str
+
+class MaterialMatchOut(BaseModel):
+    specific_material: Optional[dict] = None
+    matches: Optional[List[dict]] = None
     message: str
 
 class DatasetVersion(BaseModel):

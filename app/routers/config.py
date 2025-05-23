@@ -89,18 +89,17 @@ def form_post(request: Request, uuid_input: str = Form(None), update: bool = For
                                               context={'request': request,
                                                        'result': 'Something went wrong internally, please try again'})
 
-        material_info = response.material_info
+        specific_material = response.specific_material
+        matches = response.matches
+        message = response.message
 
-        if not material_info:
-            return templates.TemplateResponse('input.html',
-                                              context={'request': request,
-                                                       'result': f'{response.message}'})
-        else:
-            return templates.TemplateResponse('input.html',
-                                              context={'request': request,
-                                                       'result': f'{response.message}<br><br>' +f'Input:<br>{response.uuid_in}'+'<br><br>Matches:<br>'+
-                                                           '<br>'.join([f"{i+1}:<br>{item['UUID']}<br>{item['Name']}<br>{item['Kategorie']}<br>" for i, item in enumerate(material_info)])})
-
+        return templates.TemplateResponse('input.html',
+                                          context={
+                                              'request': request,
+                                              'message': message,
+                                              'specific_material': specific_material,
+                                              'matches': matches
+                                          })
 
 
 @router.get("/config/", tags=["config"])
