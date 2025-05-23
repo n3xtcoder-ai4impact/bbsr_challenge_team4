@@ -5,7 +5,7 @@ from app.functionalities.uuid_handler import uuid_input_handler
 from app.functionalities.update_oekobaudat_version import DatasetUpdater
 from app.functionalities.reembedding import ReEmbedder
 from app.functionalities.data_loader import DataLoader
-from app.model.RouterModels import UuidResponse, DatasetVersion, UpdateResponse
+from app.model.RouterModels import MaterialMatchOut, DatasetVersion, UpdateResponse
 from loguru import logger
 
 templates = Jinja2Templates(directory="app/templates/")
@@ -19,11 +19,12 @@ API_VERSION = configuration.API_VERSION
 router = APIRouter()
 
 
-@router.get('/api/materials/{uuid_input}', response_model=UuidResponse)
-async def get_generic_uuid(request: Request, uuid_input: str)->UuidResponse:
+@router.get('/api/materials/{uuid_input}', response_model=MaterialMatchOut)
+async def get_generic_uuid(request: Request, uuid_input: str)->MaterialMatchOut:
     """Takes in a UUID and, if it is specific and found, returns the generic matches for it"""
     result = uuid_input_handler(uuid_input=uuid_input,
                                 obd=request.app.state.data.obd,
+                                tbaustoff=request.app.state.data.tbaustoff,
                                 specific_generic_mapping=request.app.state.data.specific_generic_mapping)
     return result
 
@@ -82,9 +83,10 @@ def form_post(request: Request, uuid_input: str = Form(None), update: bool = For
         try:
             response = uuid_input_handler(uuid_input=uuid_input,
                                           obd=request.app.state.data.obd,
+                                          tbaustoff=request.app.state.data.tbaustoff,
                                           specific_generic_mapping=request.app.state.data.specific_generic_mapping)
         except Exception as e:
-            logger.critical(f'ERROR: {e}')
+            logger.critical(f'ERROR: {e}, traceback: {e.__context__}')
             return templates.TemplateResponse('input.html',
                                               context={'request': request,
                                                        'result': 'Something went wrong internally, please try again'})

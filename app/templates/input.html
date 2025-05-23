@@ -81,7 +81,7 @@
       <div style="flex: 1 1 0; min-width: 0;">
         <p class="match-name"><b>{{ match.name }}</b></p>
         <p class="match-uuid"><b>UUID:</b> {{ match.uuid }}</p>
-        {% if match.attributes.Category or match.attributes.Density or match.attributes.Thickness %}
+        {% if match.attributes.Category or match.attributes.Density or match.attributes.Thickness or match.tbaustoff.eol_unbuilt_real or match.tbaustoff.eol_unbuilt_potential or match.tbaustoff.technology_factor%}
         <details class="accordion">
           <summary class="accordion-summary">
             <span class="accordion-arrow" aria-hidden="true">
@@ -92,9 +92,12 @@
             <span class="accordion-more">more</span>
           </summary>
           <ul class="accordion-content" style="margin-bottom: 0">
-            {% if match.attributes.Category %}<li class="accordion-detail"><b>Category:</b> {{ match.attributes.Category }}</li>{% endif %}
-            {% if match.attributes.Density  %}<li class="accordion-detail"><b>Density:</b>  {{ match.attributes.Density  }}</li>{% endif %}
+            {% if match.attributes.Category %}<li class="accordion-detail"><b>Category:</b>{{ match.attributes.Category }}</li>{% endif %}
+            {% if match.attributes.Density  %}<li class="accordion-detail"><b>Density:</b> {{ match.attributes.Density  }}</li>{% endif %}
             {% if match.attributes.Thickness%}<li class="accordion-detail"><b>Thickness:</b>{{ match.attributes.Thickness}}</li>{% endif %}
+            {% if match.tbaustoff.technology_factor%}<li class="accordion-detail"><b>Technology Factor:</b>{{ match.tbaustoff.technology_factor}}</li>{% endif %}
+            {% if match.tbaustoff.eol_unbuilt_potential%}<li class="accordion-detail"><b>EOL unbuilt potential:</b>{{ match.tbaustoff.eol_unbuilt_potential}}</li>{% endif %}
+            {% if match.tbaustoff.eol_unbuilt_real%}<li class="accordion-detail"><b>EOL unbuilt real:</b>{{ match.tbaustoff.eol_unbuilt_real}}</li>{% endif %}
           </ul>
         </details>
         {% endif %}
