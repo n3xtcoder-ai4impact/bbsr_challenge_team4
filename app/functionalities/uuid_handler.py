@@ -15,13 +15,22 @@ def uuid_input_handler(uuid_input: str,
         return MaterialMatchOut(specific_material=None, matches=[], message=message)
 
     spec_row = specific_row.iloc[0].to_dict()
+    import math
+    def clean_name(val):
+        if val is None:
+            return None
+        if isinstance(val, float) and math.isnan(val):
+            return None
+        if isinstance(val, str) and val.strip().lower() == 'nan':
+            return None
+        return val
     spec_name = (
-        spec_row.get('Name') or
-        spec_row.get('Name (en)') or
-        spec_row.get('Name (de)') or
-        spec_row.get('Specific_Name') or
-        spec_row.get('Generic_Name') or
-        'Unknown'
+        clean_name(spec_row.get('Name')) or
+        clean_name(spec_row.get('Name (en)')) or
+        clean_name(spec_row.get('Name (de)')) or
+        clean_name(spec_row.get('Specific_Name')) or
+        clean_name(spec_row.get('Generic_Name')) or
+        'Unknown Material'
     )
     def extract_selected_attributes(row):
         import math
