@@ -4,7 +4,7 @@ from app.configuration.getConfig import Config
 from app.functionalities.uuid_handler import uuid_input_handler
 from app.functionalities.update_oekobaudat_version import DatasetUpdater
 from app.functionalities.data_loader import DataLoader
-from app.model.RouterModels import UuidsOut, DatasetVersion, UpdateResponse
+from app.model.RouterModels import MaterialMatchOut, DatasetVersion, UpdateResponse
 from loguru import logger
 
 from app.functionalities.material_mapping import MaterialMapper
@@ -27,11 +27,12 @@ def minh_tryout(request: Request):
     mapper.map_materials()
 
 
-@router.get('/api/materials/{uuid_input}', response_model=UuidsOut)
-async def get_generic_uuid(request: Request, uuid_input: str)->UuidsOut:
+@router.get('/api/materials/{uuid_input}', response_model=MaterialMatchOut)
+async def get_generic_uuid(request: Request, uuid_input: str)->MaterialMatchOut:
     """Takes in a UUID and, if it is specific and found, returns the generic matches for it"""
     result = uuid_input_handler(uuid_input=uuid_input,
                                 obd=request.app.state.data.obd,
+                                tbaustoff=request.app.state.data.tbaustoff,
                                 specific_generic_mapping=request.app.state.data.specific_generic_mapping)
     return result
 
@@ -95,26 +96,25 @@ def form_post(request: Request, uuid_input: str = Form(None), update: bool = For
         try:
             response = uuid_input_handler(uuid_input=uuid_input,
                                           obd=request.app.state.data.obd,
+                                          tbaustoff=request.app.state.data.tbaustoff,
                                           specific_generic_mapping=request.app.state.data.specific_generic_mapping)
         except Exception as e:
-            logger.critical(f'ERROR: {e}')
+            logger.critical(f'ERROR: {e}, traceback: {e.__context__}')
             return templates.TemplateResponse('input.html',
                                               context={'request': request,
                                                        'result': 'Something went wrong internally, please try again'})
 
-        uuids_out = response.uuids_out
+        specific_material = response.specific_material
+        matches = response.matches
+        message = response.message
 
-        if not uuids_out:
-            return templates.TemplateResponse('input.html',
-                                              context={'request': request,
-                                                       'result': f'{response.message}'})
-        else:
-            return templates.TemplateResponse('input.html',
-                                              context={'request': request,
-                                                       'result': f'{response.message}:<br><br>' +
-                                                                 "<br>".join([f'{i + 1}: {uuid}' for i, uuid in enumerate(uuids_out)])
-                                                       }
-                                              )
+        return templates.TemplateResponse('input.html',
+                                          context={
+                                              'request': request,
+                                              'message': message,
+                                              'specific_material': specific_material,
+                                              'matches': matches
+                                          })
 
 
 @router.get("/config/", tags=["config"])

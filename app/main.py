@@ -8,19 +8,6 @@ that were included in the app, but their code was not implemented as a functiona
 like to retrace their steps in the future, their code can be found in /sentence-tranformer-code.
 """
 
-
-# general:
-# fix 'uuid not found'
-# implement tbaustoffe lookup
-# change output Class
-
-
-# minh:
-# try preprocessing
-# try re-embedding
-# add both to after-update behaviour
-
-
 # todo: show log on endpoint /log
 # todo: change old logging to loguru
 
