@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from typing import Union
 from loguru import logger
+from fastapi import Request
 from sentence_transformers import SentenceTransformer, util
 
 # weights
@@ -12,18 +13,12 @@ WEIGHT_CATEGORY_SIMILARITY = 0.2
 WEIGHT_YEAR_BUCKET_MATCH = 0.1
 WEIGHT_UNIT_MATCH = 0.2
 
-# model
-MODEL_DIR = 'app/data/semantic_matching/model'
-MODEL_NAME = 'all-MiniLM-L6-v2'
-
-# data
-MAPPING_OUTPUT_PATH = 'app/data/semantic_matching/specific_generic_mapping.csv'
-
 
 class MaterialMapper:
-    def __init__(self):
-        self.model_dir = MODEL_DIR
-        self.model_name = MODEL_NAME
+    def __init__(self, model_name:str, model_dir:str, output_path:str):
+        self.model_name = model_name
+        self.model_dir = model_dir
+        self.output_path = output_path
         self.model = SentenceTransformer(model_name_or_path=f'{self.model_dir}/{self.model_name}', local_files_only=True)
 
         self.specific = pd.DataFrame()
@@ -41,15 +36,17 @@ class MaterialMapper:
         _ = model.save_pretrained(f'{self.model_dir}/{self.model_name}')
 
 
-    def embed_single(self, text):
+    def _embed_single(self, text):
         return self.model.encode(text, convert_to_tensor=True)
 
 
     def create_embeddings(self):
-        self.generic_name_embeddings = self.embed_single(
+        """Embeds the available OBD data"""
+
+        self.generic_name_embeddings = self._embed_single(
             self.generic["Name (en)"].fillna("").tolist()
         )
-        self.generic_cat_embeddings = self.embed_single(
+        self.generic_cat_embeddings = self._embed_single(
             self.generic["Kategorie (en)"].fillna("").tolist()
         )
         self.specific_name_embeddings = self.model.encode(
@@ -58,20 +55,20 @@ class MaterialMapper:
         self.specific_cat_embeddings = self.model.encode(
             self.specific["Kategorie (en)"].fillna("").tolist(), convert_to_tensor=True
         )
-        logger.info('Created embeddings')
+        logger.info('Created OBD embeddings')
 
 
-    def year_bucket_match(self, year1: int, year2: int) -> int:
+    def _year_bucket_match(self, year1: int, year2: int) -> int:
         if pd.isna(year1) or pd.isna(year2):
             return 0
         return 1 if abs(int(year1) - int(year2)) <= 2 else 0
 
 
-    def unit_match(self, unit1: str, unit2: str) -> int:
+    def _unit_match(self, unit1: str, unit2: str) -> int:
         return 1 if unit1.strip().lower() == unit2.strip().lower() else 0
 
 
-    def calculate_row_scores(
+    def _calculate_row_scores(
         self,
         row: pd.Series,
         idx: int,
@@ -83,10 +80,11 @@ class MaterialMapper:
         """
         Calculate the scores for the specific material and the generic materials
         """
+
         name_score = name_similarities[idx]
         cat_score = cat_similarities[idx]
-        year_score = self.year_bucket_match(specific_ref_year, row["Referenzjahr"])
-        unit_score = self.unit_match(specific_unit, row["Bezugseinheit"])
+        year_score = self._year_bucket_match(specific_ref_year, row["Referenzjahr"])
+        unit_score = self._unit_match(specific_unit, row["Bezugseinheit"])
 
         final_score = (
             WEIGHT_NAME_SIMILARITY * name_score
@@ -107,18 +105,18 @@ class MaterialMapper:
             }
         )
 
-    def calculate_scores(self, specific_uuid: str) -> Union[pd.DataFrame, None]:
+
+    def _calculate_scores(self, specific_uuid: str) -> Union[pd.DataFrame, None]:
         """
         Calculate scores for a specific material and return top 3 matches
         """
+
         specific_index = self.specific[self.specific["UUID"] == specific_uuid].index
         if specific_index.empty:
             print(f"No specific material found with UUID: {specific_uuid}")
             return None
 
         # Retrieve the precomputed embeddings for the specific material
-        logger.info(f'Name embeddings {len(self.specific_name_embeddings)}, {specific_index.values[0]}')
-        logger.info(f'Category embeddings {len(self.specific_cat_embeddings)}, {specific_index.values[0]}')
         spec_name_emb = self.specific_name_embeddings[specific_index.values[0]]
         spec_cat_emb = self.specific_cat_embeddings[specific_index.values[0]]
 
@@ -140,7 +138,7 @@ class MaterialMapper:
         specific_unit = self.specific.iloc[specific_index[0]]["Bezugseinheit"]
 
         results_df = self.generic.apply(
-            lambda row: self.calculate_row_scores(
+            lambda row: self._calculate_row_scores(
                 row,
                 self.generic.index.get_loc(row.name),
                 name_similarities,
@@ -155,12 +153,13 @@ class MaterialMapper:
 
         return top_results
 
-    def process_material(self, row: pd.Series) -> pd.DataFrame:
+
+    def _process_material(self, row: pd.Series) -> pd.DataFrame:
         """
         Calculate the score for a specific material and return top 3 matches in a DataFrame
         """
-        print(f"Processing specific material: {row['Name (en)']}") # DOES NOT DISPLAY A THING
-        res = self.calculate_scores(specific_uuid=row["UUID"])
+
+        res = self._calculate_scores(specific_uuid=row["UUID"])
         if res is not None:
             # Create a DataFrame for each match with the specific material
             matches = res.assign(
@@ -177,10 +176,12 @@ class MaterialMapper:
             return matches
         return pd.DataFrame()  # Return empty DataFrame if no matches
 
+
     def map_materials(self):
         """
         Go through all specific materials and give matches for them
         """
+
         specific_generic_mapping = pd.DataFrame()
         specific_generic_mapping = pd.DataFrame(
             columns=[
@@ -193,11 +194,11 @@ class MaterialMapper:
         )
         # Apply the processing function to all specific materials and combine results
         specific_generic_mapping = pd.concat(
-            self.specific.apply(self.process_material, axis=1).tolist(),
+            self.specific.apply(self._process_material, axis=1).tolist(),
             ignore_index=True,
         )
 
-        specific_generic_mapping.to_csv(MAPPING_OUTPUT_PATH, index=False)
+        specific_generic_mapping.to_csv(self.output_path, index=False)
 
 
     def preprocess_data(self,df: pd.DataFrame, processed_data_path: str) -> None:
@@ -205,6 +206,7 @@ class MaterialMapper:
         Preprocess the data from raw_data_path and save the processed data to processed_data_path
         This function assumes the OBD datasets are in the raw_data_path/OBD folder
         """
+
         # Convert numeric columns that use comma as decimal separator
         for col in df.select_dtypes(include=["object"]).columns:
             try:
@@ -255,4 +257,10 @@ class MaterialMapper:
         # Save processed data
         all_specific.to_csv(f'{processed_data_path}/obd_specific.csv', index=False)
         all_generic.to_csv(f'{processed_data_path}/obd_generic.csv', index=False)
-        logger.info('Preprocessed OBD data')
+        logger.info(f'Saved preprocessed OBD data to {processed_data_path}')
+
+    def embed(self, request:Request):
+        self.preprocess_data(df=request.app.state.data.obd,
+                               processed_data_path='app/data/semantic_matching/preprocessed')
+        self.create_embeddings()
+        self.map_materials()

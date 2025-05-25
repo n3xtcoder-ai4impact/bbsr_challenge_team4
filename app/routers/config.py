@@ -20,13 +20,6 @@ API_VERSION = configuration.API_VERSION
 router = APIRouter()
 
 
-def minh_tryout(request: Request):
-    mapper = MaterialMapper()
-    mapper.preprocess_data(df=request.app.state.data.obd, processed_data_path='app/data/semantic_matching/preprocessed')
-    mapper.create_embeddings()
-    mapper.map_materials()
-
-
 @router.get('/api/materials/{uuid_input}', response_model=MaterialMatchOut)
 async def get_generic_uuid(request: Request, uuid_input: str)->MaterialMatchOut:
     """Takes in a UUID and, if it is specific and found, returns the generic matches for it"""
@@ -47,12 +40,8 @@ async def show_dataset_information(request: Request)->DatasetVersion:
 async def run_api_update(request: Request)->UpdateResponse:
     """Updates the Ökobaudat dataset"""
 
-    minh_tryout(request=request)
-
-    return {'message':'yes'}
-
-    #update_response = update_reload_reembed(request=request)
-    #return update_response
+    update_response = update_and_reembed_obd_data(request=request)
+    return update_response
 
 
 @router.get('/')
@@ -78,7 +67,7 @@ def form_post(request: Request):
 def form_post(request: Request, uuid_input: str = Form(None), update: bool = Form(False)):
     """Handles all requests from the /input page: UUID queries and update button clicks"""
     if update:
-        update_reload_reembed(request=request)
+        update_and_reembed_obd_data(request=request)
         result = "Update process completed successfully"
 
         return templates.TemplateResponse('input.html',
@@ -147,19 +136,45 @@ async def health() -> dict:
 
     return status_dict
 
-def update_reload_reembed(request:Request):
+def update_and_reembed_obd_data(request:Request):
     """Nomen est omen: updates dataset, reloads app.state.data so that new data is immediately available in the app,
-     then re-embeds the material matchings and creates updated match files."""
-    # Update
-    updater = DatasetUpdater()
-    update_response = updater.perform_update()
+     then re-embeds the material matchings and creates updated mapping files."""
 
-    # Re-load data
+    # This is not a good solution, but has to do for now :/
+    old_file_len = len(request.app.state.data.obd)
+
+    try:
+        # Update OBD data
+        updater = DatasetUpdater()
+        update_response = updater.update()
+    except Exception as e:
+        logger.critical(f'Failed to update OBD data. Error: {e}')
+        return UpdateResponse(message='Update failed. Could not update data.')
+
+    # Re-load all data
     request.app.state.data = DataLoader()
 
-    # Re-embed
-    reembedder = ReEmbedder()
-    reembedder.run_reembedding()
-    reembedder.create_best_matches_csv()
+    if len(request.app.state.data.obd) != old_file_len:
+        # Re-embed new OBD data
+        try:
+            mapper = MaterialMapper(model_name='all-MiniLM-L6-v2',
+                                    model_dir='app/data/semantic_matching/model',
+                                    output_path='app/data/semantic_matching/specific_generic_mapping.csv')
+            mapper.embed(request=request)
+        except Exception as e:
+            logger.critical(f'Failed to re-embed OBD data. Error: {e}')
+            return UpdateResponse(message='Update failed. Could not re-embed data after successful update.')
+
+        # Re-load all data
+        try:
+            request.app.state.data = DataLoader()
+        except Exception as e:
+            logger.critical(f'Failed to load data after updating and re-embedding OBD data. Error: {e}')
+            return UpdateResponse(message='Update failed. Could not load newly created data after successfull '
+                                                     'updating and re-embedding.')
+
+    else:
+        logger.info('No re-embedding necessary')
+        return UpdateResponse(message='No re-embedding necessary')
 
     return update_response

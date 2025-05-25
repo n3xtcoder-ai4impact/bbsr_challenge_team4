@@ -34,7 +34,7 @@ UPDATE_MINUTE = int(configuration.configuration_dict.get('UPDATE', {}).get('MINU
 def run_daily_update(app: FastAPI):
     logger.info("Running daily update")
     updater = DatasetUpdater()
-    updater.perform_update()
+    updater.update()
     app.state.data = DataLoader()  # type: ignore[attr-defined]
 
     logger.info("Daily update process finished")
