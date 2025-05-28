@@ -16,6 +16,8 @@ to semantically match unmapped entries in the original dataset and automatically
 dataset.
 ### How do I get the app running?
 
+**There is a deployed version of the app running on MS Azure. Find it [here](https://bbsr-team4-v4.azurewebsites.net).**
+
 **With Docker**
     
 1. Get the app data to you local machine
